@@ -1,43 +1,31 @@
-import { Component } from "react";
-import type { ReactNode, ErrorInfo } from "react";
+import { useRouteError, isRouteErrorResponse } from "react-router-dom";
+import { Button } from "../ui/button";
 
-interface ErrorBoundaryProps {
-  children: ReactNode;
-}
+export default function ErrorBoundary() {
+  const error = useRouteError();
 
-interface ErrorBoundaryState {
-  hasError: boolean;
-}
+  let title = "Something went wrong";
+  let message = "An unexpected error occurred.";
 
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
+  if (isRouteErrorResponse(error)) {
+    // router-specific errors
+    title = `${error.status} ${error.statusText}`;
+    message = error.data || "Oops! We couldn’t find that page.";
+  } else if (error instanceof Error) {
+    // JS errors
+    message = error.message;
   }
 
-  static getDerivedStateFromError(): ErrorBoundaryState {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error("Error caught by error boundary:", error, errorInfo);
-  }
-
-  render(): ReactNode {
-    if (this.state.hasError) {
-      return <ErrorFallback />;
-    }
-
-    return this.props.children;
-  }
-}
-
-export default ErrorBoundary;
-
-const ErrorFallback = () => {
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
-      <h1>Something went wrong.</h1>
+    <div className="flex flex-col space-y-2 items-center justify-center h-screen text-center p-4">
+      <h1 className="text-3xl font-bold mb-2">{title}</h1>
+      <p className="text-muted-foreground">{message}</p>
+      <Button
+        className="mt-4 px-4 py-2"
+        onClick={() => window.location.reload()}
+      >
+        Reload
+      </Button>
     </div>
   );
-};
+}
