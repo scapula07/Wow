@@ -4,6 +4,7 @@ import { Suspense, Fragment, lazy } from "react";
 import ErrorBoundary from "./components/shared/error-boundary";
 import AuthLayout from "./components/layouts/auth-layout";
 import { Toaster } from "./components/ui/sonner";
+import DashboardLayout from "./components/layouts/dashboard-layout";
 
 interface RouteConfig {
   path: string;
@@ -25,6 +26,7 @@ const routes: RouteConfig[] = [
   {
     path: "/",
     page: Home,
+    layout: DashboardLayout,
   },
   {
     path: "/auth/login",

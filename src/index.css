@@ -115,3 +115,8 @@
     @apply bg-secondary text-white font-[Montserrat];
   }
 }
+
+/* Utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
