@@ -7,7 +7,7 @@ type Props = {
 const CarouselItem = ({ img }: Props) => {
   return (
     <div
-      className=" w-full min-w-full flex flex-col justify-end"
+      className=" w-full min-w-full flex flex-col justify-end rounded-[20px]"
       style={{
         height: "360px",
         backgroundImage: `url(${img})`,
