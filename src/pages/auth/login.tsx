@@ -16,15 +16,17 @@ import {
   loginSchema,
 } from "@/modules/auth/schema/login.schema";
 import ErrorAlert from "@/components/alerts/error-alert";
-import { Link } from "react-router";
+import { Link,useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import GoogleAuth from "@/modules/auth/components/google-auth";
 import { VStack } from "@/components/ui/stack";
+import { authApi } from "@/firebase/auth";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errorResponse, setErrorResponse] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,7 +39,23 @@ const Login = () => {
 
   const submit: SubmitHandler<LoginSchemaType> = async (data) => {
     setErrorResponse(null);
-    console.log(data);
+    setLoading(true);
+    try {
+      const res = await authApi.loginWithEmail(data.email, data.password);
+      if (!res.success) {
+        setErrorResponse(res.error || "Login failed");
+      } else {
+           localStorage.clear();
+          localStorage.setItem('user',JSON.stringify(res));
+          navigate("/");
+        // Optionally redirect or show success
+        // e.g., navigate('/home');
+      }
+    } catch (err: any) {
+      setErrorResponse(err.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -117,8 +135,8 @@ const Login = () => {
             Forgot password?
           </Link>
 
-          <Button type="submit" className="w-full font-bold mt-4.5 h-14">
-            Login
+          <Button type="submit" className="w-full font-bold mt-4.5 h-14" disabled={loading}>
+            {loading ? "Processing..." : "Login"}
           </Button>
 
           <div className="flex flex-col space-y-1 mt-2">
@@ -128,7 +146,7 @@ const Login = () => {
               <hr className="w-full border-white" />
             </div>
 
-            <GoogleAuth />
+            <GoogleAuth text="Login with Google" />
 
             <p className="text-center mt-6 text-[#FAFAFA66]">
               Don&apos;t have an account?{" "}
