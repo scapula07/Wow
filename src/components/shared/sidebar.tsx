@@ -9,8 +9,6 @@ import {
 } from "lucide-react";
 import SidebarItem from "../sidebar-item";
 import { VStack } from "../ui/stack";
-import WOWLogo from "../../assets/images/wow-logo.svg";
-import WOWLogoFull from "../../assets/icons/wow-logo-full.svg";
 import ChannelLists from "../channel-list";
 
 type Props = {
@@ -30,9 +28,19 @@ const Sidebar = ({ expanded, setExpanded }: Props) => {
         <VStack
           className={cn("mb-14 flex items-center", expanded && "items-start")}
         >
-          {!expanded && <img src={WOWLogo} alt="WOW" className="w-8 h-8" />}
+          {!expanded && (
+            <img
+              src="assets/images/wow-logo.svg"
+              alt="WOW"
+              className="w-8 h-8"
+            />
+          )}
           {expanded && (
-            <img src={WOWLogoFull} alt="WOW" className="w-[85px] h-[24px]" />
+            <img
+              src="assets/icons/wow-logo-full.svg"
+              alt="WOW"
+              className="w-[85px] h-[24px]"
+            />
           )}
           <div className="w-full relative z-50">
             <Button

@@ -1,5 +1,4 @@
 import { Eye } from "lucide-react";
-import LivestreamCategoryCardImg from "../assets/images/wow-live-sample.jpg";
 
 type Props = {
   views?: number;
@@ -10,7 +9,7 @@ const LivestreamCategoryCard = ({ views }: Props) => {
     <div
       className="min-w-[300px] w-[300px] h-[200px] inset-0 bg-black/50 relative flex items-end rounded-[6px] p-3"
       style={{
-        backgroundImage: `url(${LivestreamCategoryCardImg})`,
+        backgroundImage: `url(assets/images/wow-live-sample.jpg)`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

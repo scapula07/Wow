@@ -3,29 +3,26 @@ import CarouselItem from "./carousel-item";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import LiveImage1 from "../../../assets/images/wow-live-sample.jpg";
-import LiveImage2 from "../../../assets/images/ufo2.jpg";
-import LiveImage3 from "../../../assets/images/ufo3.jpg";
 import { useSwipeable } from "react-swipeable";
 
 const items = [
   {
     id: 1,
-    image: LiveImage1,
+    image: "/assets/images/wow-live-sample.jpg",
     title: "Wade Fox",
     followers: "12.5k",
     live: "11.7k",
   },
   {
     id: 2,
-    image: LiveImage2,
+    image: "/assets/images/ufo2.jpg",
     title: "Quantum Void",
     followers: "8.1k",
     live: "9.2k",
   },
   {
     id: 3,
-    image: LiveImage3,
+    image: "/assets/images/ufo3.jpg",
     title: "Area 52",
     followers: "5.3k",
     live: "6.4k",

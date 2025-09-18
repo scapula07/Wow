@@ -1,4 +1,3 @@
-import LivestreamCategoryCardImg from "../assets/images/wow-live-sample.jpg";
 import { Button } from "./ui/button";
 import { MoreVertical } from "lucide-react";
 
@@ -7,7 +6,7 @@ const LivestreamCard = () => {
     <div className="flex flex-col space-y-5">
       <div className="w-full h-[195px] relative">
         <img
-          src={LivestreamCategoryCardImg}
+          src="assets/images/wow-live-sample.jpg"
           alt="live"
           className="w-full h-full rounded-[10.35px]"
         />
