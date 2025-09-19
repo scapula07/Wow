@@ -22,12 +22,18 @@ const ForgotPassword = lazy(() => import("./pages/auth/forgot-password"));
 const ResetPassword = lazy(() => import("./pages/auth/reset-password"));
 const VerifyOTP = lazy(() => import("./pages/auth/verify-otp"));
 
+// Stream
+const CreateStream = lazy(() => import("./pages/streams/create"));
+const LiveStream = lazy(() => import("./pages/streams/live"));
+
 const routes: RouteConfig[] = [
   {
     path: "/",
     page: Home,
     layout: DashboardLayout,
   },
+
+  // Auth
   {
     path: "/auth/login",
     page: Login,
@@ -52,6 +58,18 @@ const routes: RouteConfig[] = [
     path: "/auth/verify-otp",
     page: VerifyOTP,
     layout: AuthLayout,
+  },
+
+  // Stream
+  {
+    path: "/streams/:name/create",
+    page: CreateStream,
+    layout: DashboardLayout,
+  },
+  {
+    path: "/streams/:id/live",
+    page: LiveStream,
+    layout: DashboardLayout,
   },
 ];
 

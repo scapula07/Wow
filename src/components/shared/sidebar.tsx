@@ -30,14 +30,14 @@ const Sidebar = ({ expanded, setExpanded }: Props) => {
         >
           {!expanded && (
             <img
-              src="assets/images/wow-logo.svg"
+              src="/assets/images/wow-logo.svg"
               alt="WOW"
               className="w-8 h-8"
             />
           )}
           {expanded && (
             <img
-              src="assets/icons/wow-logo-full.svg"
+              src="/assets/icons/wow-logo-full.svg"
               alt="WOW"
               className="w-[85px] h-[24px]"
             />

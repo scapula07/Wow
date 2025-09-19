@@ -16,3 +16,7 @@ export function getFromSessionStorage(key: string) {
 export function removeFromSessionStorage(key: string) {
   return sessionStorage.removeItem(key);
 }
+
+export const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text);
+};

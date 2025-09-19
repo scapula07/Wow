@@ -2,8 +2,12 @@ import { HStack } from "../ui/stack";
 import { Input } from "../ui/input";
 import { SearchIcon, Video } from "lucide-react";
 import { Button } from "../ui/button";
+import useDisclosure from "@/lib/hooks/use-disclosure";
+import CreateStream from "@/modules/stream/components/dialogs/create-stream";
 
 const Navbar = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <HStack className="pt-5 items-center justify-between">
       <div className="bg-[#141414] w-[500px] !h-12 relative left-20">
@@ -21,13 +25,18 @@ const Navbar = () => {
         <Button className="rounded-[20px] w-fit text-sm font-semibold py-5">
           Sign Up
         </Button>
-        <Button className="rounded-[20px] w-fit text-sm font-semibold py-5 pl-1">
+        <Button
+          className="rounded-[20px] w-fit text-sm font-semibold py-5 pl-1"
+          onClick={onOpen}
+        >
           <div className="w-[31px] h-[31px] rounded-full text-white flex items-center justify-center bg-[#141414]">
             <Video />
           </div>
           Go Live
         </Button>
       </HStack>
+
+      <CreateStream open={isOpen} onClose={onClose} />
     </HStack>
   );
 };

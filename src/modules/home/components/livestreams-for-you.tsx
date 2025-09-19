@@ -19,7 +19,7 @@ const LivestreamsForYou = () => {
       </div>
 
       <div className="grid md:grid-cols-4 grid-cols-1 gap-x-5 gap-y-8">
-        {[...Array(9)].map((i) => (
+        {[...Array(9)].map((_, i) => (
           <LivestreamCard key={i} />
         ))}
       </div>
