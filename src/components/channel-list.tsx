@@ -19,7 +19,7 @@ const ChannelLists = ({ expanded }: Props) => {
         </h3>
       )}
 
-      <div className="flex flex-col mt-6 space-y-8 w-full">
+      <div className="flex flex-col mt-6 space-y-6 w-full">
         {dummyChannels.map((ch) => (
           <div
             key={ch.name}
