@@ -10,6 +10,7 @@ import {
 import SidebarItem from "../sidebar-item";
 import { VStack } from "../ui/stack";
 import ChannelLists from "../channel-list";
+import { useLocation } from "react-router";
 
 type Props = {
   expanded: boolean;
@@ -17,6 +18,8 @@ type Props = {
 };
 
 const Sidebar = ({ expanded, setExpanded }: Props) => {
+  const { pathname } = useLocation();
+
   return (
     <aside
       className={cn(
@@ -64,16 +67,22 @@ const Sidebar = ({ expanded, setExpanded }: Props) => {
             icon={<Home size={20} />}
             label="Home"
             expanded={expanded}
+            link="/"
+            active={pathname === "/"}
           />
           <SidebarItem
             icon={<LayoutGrid size={20} />}
             label="Browse"
             expanded={expanded}
+            link="/browse"
+            active={pathname.includes("browse")}
           />
           <SidebarItem
             icon={<Heart size={20} absoluteStrokeWidth />}
             label="Following"
             expanded={expanded}
+            link="/following"
+            active={pathname.includes("following")}
           />
         </nav>
       </div>

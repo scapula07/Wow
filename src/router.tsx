@@ -25,6 +25,8 @@ const VerifyOTP = lazy(() => import("./pages/auth/verify-otp"));
 // Stream
 const CreateStream = lazy(() => import("./pages/streams/create"));
 const LiveStream = lazy(() => import("./pages/streams/live"));
+const BrowseStreams = lazy(() => import("./pages/browse"));
+const Following = lazy(() => import("./pages/following"));
 
 // User
 const UserProfile = lazy(() => import("./pages/user/profile"));
@@ -72,6 +74,20 @@ const routes: RouteConfig[] = [
   {
     path: "/streams/:id/live",
     page: LiveStream,
+    layout: DashboardLayout,
+  },
+
+  // Browse Livstreams
+  {
+    path: "/browse",
+    page: BrowseStreams,
+    layout: DashboardLayout,
+  },
+
+  // Following
+  {
+    path: "/following",
+    page: Following,
     layout: DashboardLayout,
   },
 
