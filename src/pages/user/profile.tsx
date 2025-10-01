@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { doc, getDoc, setDoc, deleteDoc, onSnapshot, increment, updateDoc } from "firebase/firestore";
+import { db } from "@/firebase/config";
+import { useAuth } from "@/lib/hooks/use-auth";
+import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ProfileVideoTab from "@/modules/user/components/profile-video-tab";
 import ProfileLivestreamTab from "@/modules/user/components/profile-livestream-tab";
@@ -9,28 +13,199 @@ import ProfileLivestreamTab from "@/modules/user/components/profile-livestream-t
 const sampleText =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.";
 
+interface UserData {
+  id: string;
+  email: string;
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  photoURL?: string;
+  bio?: string;
+  followerCount?: number;
+  followingCount?: number;
+  createdAt: string;
+}
+
 const Profile = () => {
   const [expandText, setExpandText] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [followerCount, setFollowerCount] = useState(0);
 
   const { id } = useParams<{ id: string }>();
+  const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  // Fetch user data when component mounts or id changes
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!id) {
+        setError("User ID not provided");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const userDoc = await getDoc(doc(db, "users", id));
+        
+        if (userDoc.exists()) {
+          const userData = {
+            id: userDoc.id,
+            ...userDoc.data()
+          } as UserData;
+          setUser(userData);
+          setFollowerCount(userData.followerCount || 0);
+        } else {
+          setError("User not found");
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        setError("Failed to load user data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [id]);
+
+  // Check if current user is following this profile user
+  useEffect(() => {
+    if (!currentUser?.id || !id || currentUser.id === id) return;
+
+    const followDocRef = doc(db, "follows", `${currentUser.id}_${id}`);
+    
+    const unsubscribe = onSnapshot(followDocRef, (doc) => {
+      setIsFollowing(doc.exists());
+    });
+
+    return () => unsubscribe();
+  }, [currentUser?.uid, id]);
+
+  // Listen to real-time follower count changes
+  useEffect(() => {
+    if (!id) return;
+
+    const userDocRef = doc(db, "users", id);
+    
+    const unsubscribe = onSnapshot(userDocRef, (doc) => {
+      if (doc.exists()) {
+        const userData = doc.data();
+        setFollowerCount(userData.followerCount || 0);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [id]);
+
+  // Get display name with fallback logic
+  const getDisplayName = () => {
+    if (user?.displayName) return user.displayName;
+    if (user?.firstName && user?.lastName) return `${user.firstName} ${user.lastName}`;
+    if (user?.firstName) return user.firstName;
+    if (user?.email) return user.email.split('@')[0];
+    return "Unknown User";
+  };
+
+  // Handle follow/unfollow action
+  const handleFollowToggle = async () => {
+    if (!currentUser?.id || !id || currentUser.id === id) {
+      toast.error("Please log in to follow users");
+      return;
+    }
+
+    setFollowLoading(true);
+
+    try {
+      const followDocRef = doc(db, "follows", `${currentUser.id}_${id}`);
+      const userDocRef = doc(db, "users", id);
+      const currentUserDocRef = doc(db, "users", currentUser.id);
+
+      if (isFollowing) {
+        // Unfollow: Delete follow document and decrement counts
+        await deleteDoc(followDocRef);
+        await updateDoc(userDocRef, {
+          followerCount: increment(-1)
+        });
+        await updateDoc(currentUserDocRef, {
+          followingCount: increment(-1)
+        });
+        toast.success(`Unfollowed ${getDisplayName()}`);
+      } else {
+        // Follow: Create follow document and increment counts
+        await setDoc(followDocRef, {
+          followerId: currentUser.uid,
+          followingId: id,
+          createdAt: new Date().toISOString()
+        });
+        await updateDoc(userDocRef, {
+          followerCount: increment(1)
+        });
+        await updateDoc(currentUserDocRef, {
+          followingCount: increment(1)
+        });
+        toast.success(`Now following ${getDisplayName()}`);
+      }
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+      toast.error("Failed to update follow status");
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  // Check if this is the current user's own profile
+  const isOwnProfile = currentUser?.id === id;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="mt-12 flex items-center justify-center py-20">
+        <div className="text-white text-lg">Loading user profile...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !user) {
+    return (
+      <div className="mt-12 flex flex-col items-center justify-center py-20 space-y-4">
+        <div className="text-red-400 text-lg">{error || "User not found"}</div>
+        <Button 
+          onClick={() => window.history.back()} 
+          variant="outline"
+          className="text-white border-gray-600 hover:bg-gray-800"
+        >
+          Go Back
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div id={id} className="mt-12 flex flex-col space-y-10">
       <div className="flex items-center space-x-7">
         <img
-          src="/assets/images/wow-live-sample.jpg"
+          src={user.photoURL || "/assets/images/wow-live-sample.jpg"}
           alt="profile-pics"
           className="md:w-1/4 w-full h-[250px] max-h-[250px] rounded-[10px] object-cover shadow transition-all duration-500 ease-in-out"
         />
 
         <div className="flex flex-col space-y-5 max-w-[61%]">
           <h1 className="font-bold text-[40px] leading-12">
-            Space Theory & Cosmic Mysteries
+            {getDisplayName()}
           </h1>
 
           <p className="text-2xl font-medium">
             147k <span className="text-[#FFFFFFB2]">viewers</span>{" "}
-            <span className="text-xs mx-1 relative bottom-0.5">●</span> 2.43M{" "}
+            <span className="text-xs mx-1 relative bottom-0.5">●</span>{" "}
+            {followerCount.toLocaleString()}{" "}
             <span className="text-[#FFFFFFB2]">followers</span>
           </p>
 
@@ -41,9 +216,9 @@ const Profile = () => {
             }}
           >
             {expandText
-              ? sampleText
-              : sampleText.slice(0, 200) +
-                `${sampleText.length > 200 ? "..." : ""}`}
+              ? (user.bio || sampleText)
+              : (user.bio || sampleText).slice(0, 200) +
+                `${(user.bio || sampleText).length > 200 ? "..." : ""}`}
             <button
               className="bg-none w-fit h-0 relative bottom-4 cursor-pointer inline"
               onClick={() => setExpandText(!expandText)}
@@ -57,9 +232,42 @@ const Profile = () => {
             </button>
           </div>
 
-          <Button className="text-[#141414] font-semibold w-fit px-12 mt-3 rounded-[5px]">
-            Follow
-          </Button>
+          {!isOwnProfile && currentUser && (
+            <Button 
+              className={`font-semibold w-fit px-12 mt-3 rounded-[5px] ${
+                isFollowing 
+                  ? "bg-gray-600 text-white hover:bg-gray-700" 
+                  : "text-[#141414]"
+              }`}
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+            >
+              {followLoading 
+                ? "Loading..." 
+                : isFollowing 
+                  ? "Unfollow" 
+                  : "Follow"
+              }
+            </Button>
+          )}
+
+          {!isOwnProfile && !currentUser && (
+            <Button 
+              className="text-[#141414] font-semibold w-fit px-12 mt-3 rounded-[5px]"
+              onClick={() => toast.error("Please log in to follow users")}
+            >
+              Follow
+            </Button>
+          )}
+
+          {isOwnProfile && (
+            <Button 
+              className="text-[#141414] font-semibold w-fit px-12 mt-3 rounded-[5px]"
+              onClick={() => navigate(`/user/${id}/update`)}
+            >
+              Edit Profile
+            </Button>
+          )}
         </div>
       </div>
 

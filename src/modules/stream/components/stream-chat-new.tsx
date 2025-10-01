@@ -1,6 +1,5 @@
 import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { Avatar } from "@radix-ui/react-avatar";
 import { Send } from "lucide-react";
 import {
@@ -20,9 +19,10 @@ import {
   serverTimestamp,
   where 
 } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import { db, auth } from "@/firebase/config";
+import { onAuthStateChanged, type User } from "firebase/auth";
 import { toast } from "sonner";
-import { useAuth } from "@/lib/hooks/use-auth";
+
 interface Message {
   id: string;
   userId: string;
@@ -43,10 +43,18 @@ const StreamChat = ({ streamId }: StreamChatProps) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
-  // Use the auth hook instead of manual state management
-  const { user } = useAuth();
   const chatRef = useRef<HTMLDivElement>(null);
+
+  // Listen to auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
@@ -230,22 +238,8 @@ const StreamChat = ({ streamId }: StreamChatProps) => {
         onSubmit={handleSend}
         className="flex items-center p-2 relative w-full"
       >
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={user ? "Add a comment..." : "Sign in to chat"}
-          disabled={!user || sending}
-          className="bg-inherit text-white border-1 border-[#FFFFFF80] rounded-[8px] focus-visible:ring-0 focus-visible:ring-offset-0 pr-10 placeholder:font-[Inter] disabled:opacity-50"
-        />
-        <Button
-          type="submit"
-          size="icon"
-          variant="ghost"
-          disabled={!user || !input.trim() || sending}
-          className="rounded-full bg-none text-primary absolute hover:bg-inherit hover:text-white right-4 disabled:opacity-50"
-        >
-          <Send className="w-5 h-5" />
-        </Button>
+ 
+
       </form>
       
       {!user && (

@@ -21,12 +21,13 @@ import {
   type SignupSchemaType,
 } from "@/modules/auth/schema/signup.schema";
 import { authApi } from "@/firebase/auth";
+import { useAuthStore } from "@/store";
 
 const Signup = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [errorResponse, setErrorResponse] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { login, setError, error } = useAuthStore();
 
   const form = useForm<SignupSchemaType>({
     resolver: zodResolver(SignupSchema),
@@ -41,20 +42,24 @@ const Signup = () => {
   // Call API to signup
 
   const submit: SubmitHandler<SignupSchemaType> = async (data) => {
-    setErrorResponse(null);
+    setError(null);
     setLoading(true);
     try {
       const res = await authApi.signupWithEmail(data.email, data.password);
       if (!res.success) {
-        setErrorResponse(res.error || "Signup failed");
+        setError(res.error || "Signup failed");
       } else {
-          localStorage.clear();
-          localStorage.setItem('user',JSON.stringify(res));
-          navigate("/");
-          
+        // Convert response to User type and login
+        const user = {
+          email: data.email,
+          onboarded: false,
+          ...(res as any).user
+        };
+        login(user);
+        navigate("/");
       }
     } catch (err: any) {
-      setErrorResponse(err.message || "Signup failed");
+      setError(err.message || "Signup failed");
     } finally {
       setLoading(false);
     }
@@ -71,7 +76,7 @@ const Signup = () => {
         </p>
       </VStack>
 
-      {errorResponse && <ErrorAlert message={errorResponse} />}
+      {error && <ErrorAlert message={error} />}
 
       <Form {...form}>
         <form

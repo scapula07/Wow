@@ -27,6 +27,9 @@ import SelectStreamThumbnail from "../select-stream-thumbnail";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useStream } from "../../hooks/useStream";
+import { streamApi } from "@/firebase/stream";
+import { useAuth } from "@/lib/hooks/use-auth";
+import { toast } from "sonner";
 
 type Props = {
   open: boolean;
@@ -35,10 +38,12 @@ type Props = {
 
 const CreateStream = ({ open, onClose }: Props) => {
   const [file, setFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
-
+  const { user } = useAuth();
   const { setStreamDetails } = useStream();
+   
 
   const form = useForm<CreateStreamSchemaType>({
     resolver: zodResolver(CreateStreamSchema),
@@ -48,16 +53,50 @@ const CreateStream = ({ open, onClose }: Props) => {
       schedule: "",
     },
   });
-
+  
   const submit: SubmitHandler<CreateStreamSchemaType> = async (data) => {
-    setStreamDetails({
-      name: data.name,
-      category: data.category,
-      schedule: data.schedule,
-      thumbnail: file,
-    });
-    onClose();
-    navigate(`/streams/${data.name}/create`);
+     
+    if (!user?.id) {
+      toast.error("You must be logged in to create a stream");
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      // Create stream with Livepeer and Firebase
+      const result = await streamApi.create({
+        creatorId: user.id,
+        streamName: data.name,
+        streamThumbnail: file || undefined,
+        category: data.category,
+      });
+
+      if (result.success && result.data) {
+        // Set stream details for the next page
+        setStreamDetails({
+          name: data.name,
+          category: data.category,
+          schedule: data.schedule,
+          thumbnail: file,
+          streamId: result.streamId,
+          streamKey: result.data.streamKey,
+          playbackId: result.data.playbackId,
+          creatorId: result.data.creatorId,
+        });
+
+        toast.success("Stream created successfully!");
+        onClose();
+        navigate(`/streams/${result.streamId}/create`);
+      } else {
+        toast.error(result.error || "Failed to create stream");
+      }
+    } catch (error) {
+      console.error("Stream creation error:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -168,11 +207,16 @@ const CreateStream = ({ open, onClose }: Props) => {
                   variant="link"
                   className="hover:no-underline text-white h-12"
                   onClick={onClose}
+                  disabled={isLoading}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="h-12">
-                  Create Stream
+                <Button 
+                  type="submit" 
+                  className="h-12"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating Stream..." : "Create Stream"}
                 </Button>
               </div>
             </div>

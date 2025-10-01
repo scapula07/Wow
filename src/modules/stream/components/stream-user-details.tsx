@@ -1,29 +1,99 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { StreamData } from "@/modules/stream/types/stream.types";
+import { useState, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/firebase/config";
+import { formatRelativeTime } from "@/lib/utils/date";
 
-const StreamUserDetails = () => {
+interface UserData {
+  id: string;
+  email: string;
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  photoURL?: string;
+}
+
+interface StreamUserDetailsProps {
+  streamData: StreamData;
+}
+
+const StreamUserDetails = ({ streamData }: StreamUserDetailsProps) => {
+  const [creator, setCreator] = useState<UserData | null>(null);
+  const [loadingCreator, setLoadingCreator] = useState(false);
+
+  // Fetch creator data when streamData changes
+  useEffect(() => {
+    const fetchCreator = async () => {
+      if (!streamData?.creatorId) return;
+      
+      setLoadingCreator(true);
+      try {
+        const userDoc = await getDoc(doc(db, "users", streamData.creatorId));
+        if (userDoc.exists()) {
+          setCreator({
+            id: userDoc.id,
+            ...userDoc.data()
+          } as UserData);
+        }
+      } catch (error) {
+        console.error("Error fetching creator:", error);
+      } finally {
+        setLoadingCreator(false);
+      }
+    };
+
+    fetchCreator();
+  }, [streamData?.creatorId]);
+
   return (
     <div className="flex flex-col space-y-7 pb-6">
       <p className="text-xl font-semibold">
-        Satellite Blackout? You&apos;re Gonna Wanna See This
+        {streamData.streamName || "Stream Title"}
       </p>
 
       <div className="flex w-full justify-between">
         <div className="flex space-x-5">
           <Avatar className="w-[60px] h-[60px]">
             <AvatarImage
-              src="https://i.pravatar.cc/40?img=1"
+              src={creator?.photoURL || "https://i.pravatar.cc/60?img=1"}
               className="rounded-full"
             />
-            <AvatarFallback>DN</AvatarFallback>
+            <AvatarFallback>
+              {creator?.firstName?.charAt(0)?.toUpperCase() || 
+               creator?.displayName?.charAt(0)?.toUpperCase() || 
+               streamData.streamName?.charAt(0)?.toUpperCase() || "S"}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col space-y-4">
-            <h3 className="font-bold text-2xl">ZetaTap</h3>
+            <h3 className="font-bold text-2xl">
+              {loadingCreator ? (
+                "Loading..."
+              ) : (
+                creator?.displayName || 
+                `${creator?.firstName || ""} ${creator?.lastName || ""}`.trim() ||
+                creator?.email?.split('@')[0] || 
+                "Unknown Creator"
+              )}
+            </h3>
             <p className="text-xl font-medium">
-              147k <span className="text-[#FFFFFFB2]">viewers</span>{" "}
-              <span className="text-xs mx-1 relative bottom-0.5">●</span> 2.43M{" "}
-              <span className="text-[#FFFFFFB2]">followers</span>
+              {streamData.viewerCount || 0}{" "}
+              <span className="text-[#FFFFFFB2]">viewers</span>{" "}
+              {streamData.isLive && (
+                <>
+                  <span className="text-xs mx-1 relative bottom-0.5 text-red-500">●</span>
+                  <span className="text-[#FFFFFFB2]">LIVE</span>
+                </>
+              )}
             </p>
-            <p className="font-medium">@zeta | Zetatap-szn | zeta@email.com</p>
+            <p className="font-medium">
+              Category: {streamData.category || "Uncategorized"}
+            </p>
+            {streamData.createdAt && (
+              <p className="text-sm text-[#FFFFFFB2]">
+                Created: {formatRelativeTime(streamData.createdAt)}
+              </p>
+            )}
           </div>
         </div>
 

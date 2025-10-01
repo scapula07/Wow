@@ -3,13 +3,25 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import NormalStream from "@/modules/stream/components/normal-stream";
 import ObsStream from "@/modules/stream/components/obs-stream";
 import { MoveLeft } from "lucide-react";
-import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useStream } from "@/modules/stream/hooks/useStream";
 
 const CreateStream = () => {
-  const { name } = useParams<{ name: string }>();
-
+  const { streamDetails } = useStream();
   const navigate = useNavigate();
+
+  // Check if we have stream details
+  if (!streamDetails.streamId || !streamDetails.name) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="text-red-400 text-lg">No stream data available</div>
+        <Button onClick={() => navigate("/")} className="text-white">
+          <MoveLeft className="w-4 h-4 mr-2" />
+          Back to Home
+        </Button>
+      </div>
+    );
+  }
 
   const tabs = [
     {
@@ -58,7 +70,7 @@ const CreateStream = () => {
           </TabsContent>
 
           <TabsContent value="1">
-            <NormalStream name={name as string} />
+            <NormalStream />
           </TabsContent>
         </Tabs>
       </div>

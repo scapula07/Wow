@@ -8,7 +8,7 @@ import useDisclosure from "@/lib/hooks/use-disclosure";
 import { toast } from "sonner";
 import CreateStream from "./dialogs/create-stream";
 
-const NormalStream = ({ name }: { name: string }) => {
+const NormalStream = () => {
   const { streamDetails } = useStream();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -16,10 +16,11 @@ const NormalStream = ({ name }: { name: string }) => {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    if (name === streamDetails.name) {
-      navigate(`/streams/1234/live`);
+    if (streamDetails.streamId) {
+      // Navigate to live stream page with the actual stream ID
+      navigate(`/streams/${streamDetails.streamId}/live`);
     } else {
-      toast.error("Create a stream first");
+      toast.error("Stream data not available. Please try again.");
       onOpen();
     }
   };
@@ -35,6 +36,7 @@ const NormalStream = ({ name }: { name: string }) => {
             value={streamDetails.name}
             placeholder="Give your stream a name"
             className="h-14 rounded-[8px] !border-[#383A3F] placeholder:text-[#FAFAFAB2] w-full"
+            readOnly
           />
         </div>
 

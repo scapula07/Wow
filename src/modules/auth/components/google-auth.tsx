@@ -2,11 +2,12 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { authApi } from "@/firebase/auth";
+import { useAuthStore } from "@/store";
 
 const GoogleAuth = ({ text }: { text?: string }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login, setError } = useAuthStore();
 
   const handleGoogleClick = async () => {
     setError(null);
@@ -21,8 +22,13 @@ const GoogleAuth = ({ text }: { text?: string }) => {
       if (!res || (typeof res === 'object' && 'error' in res)) {
         setError((res && (res as any).error) || "Google authentication failed");
       } else {
-        localStorage.clear();
-        localStorage.setItem('user', JSON.stringify(res));
+        // Convert the response to the expected User type
+        const user = {
+          email: (res as any).email || '',
+          onboarded: (res as any).onboarded || false,
+          ...res
+        };
+        login(user);
         navigate("/");
       }
     } catch (err: any) {

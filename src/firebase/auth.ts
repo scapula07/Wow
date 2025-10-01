@@ -40,18 +40,32 @@ export const authApi= {
             return { success: false, error: errorMessage };
         }
     },
-    signupWithEmail: async function(email: string, password: string) {
+    signupWithEmail: async function(email: string, password: string, additionalData?: {
+        firstName?: string;
+        lastName?: string;
+        displayName?: string;
+        phoneNumber?: string;
+    }) {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            // Optionally, create a user document in Firestore
+            
+            // Create a user document in Firestore with additional data
             const ref = doc(db, "users", user.uid);
-            await setDoc(ref, {
+            const userData = {
                 id: user.uid,
                 email: user.email,
-                onboarded: false
-            });
-            return { success: true, user };
+                firstName: additionalData?.firstName || "",
+                lastName: additionalData?.lastName || "",
+                displayName: additionalData?.displayName || additionalData?.firstName || user.email?.split('@')[0] || "",
+                photoURL: user.photoURL || "",
+                onboarded: false,
+                createdAt: new Date().toISOString(),
+            };
+            
+            await setDoc(ref, userData);
+            
+            return { success: true, user, userData };
         } catch (error) {
             const errorMessage = (error as Error).message;
             return { success: false, error: errorMessage };
@@ -63,20 +77,35 @@ export const authApi= {
              const provider = new GoogleAuthProvider();
              provider.addScope("https://www.googleapis.com/auth/userinfo.profile");
              const res =  await signInWithPopup(auth,provider);
-            //  const credential = GoogleAuthProvider.credentialFromResult(res);
              const user = res.user;
              console.log(user,"user....");
+             
              const ref =doc(db,"users",user?.uid);
              const docSnap1 = await getDoc(ref);
              if(docSnap1.exists()){
                 throw new Error("Email already used");
              }
 
-             await setDoc(ref,{
-                 id:user?.uid,
-                 email:user?.email,
-                 onboarded:false
-              });
+             // Extract name parts from Google profile
+             const displayName = user.displayName || "";
+             const nameParts = displayName.split(" ");
+             const firstName = nameParts[0] || "";
+             const lastName = nameParts.slice(1).join(" ") || "";
+
+             const userData = {
+                 id: user?.uid,
+                 email: user?.email,
+                 firstName: firstName,
+                 lastName: lastName,
+                 displayName: displayName,
+                 phoneNumber: user.phoneNumber || "",
+                 photoURL: user.photoURL || "",
+                 onboarded: false,
+                 createdAt: new Date().toISOString(),
+                 updatedAt: new Date().toISOString()
+             };
+
+             await setDoc(ref, userData);
 
            const docSnap = await getDoc(ref);
             if (docSnap.exists()) {
@@ -89,8 +118,6 @@ export const authApi= {
              console.log(e);
             //  throw new Error((e as Error).message);
          }
-
-
      },
 
      resetEmail:async function (email: string) {

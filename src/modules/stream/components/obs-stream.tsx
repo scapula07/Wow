@@ -4,12 +4,35 @@ import { copyToClipboard } from "@/lib/utils";
 import { Copy, Eye, EyeOff, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { useStream } from "../hooks/useStream";
+import type { StreamData } from "../types/stream.types";
+import { toast } from "sonner";
 
-const ObsStream = () => {
+interface ObsStreamProps {
+  streamData?: StreamData;
+}
+
+const ObsStream = ({ streamData }: ObsStreamProps) => {
   const [showKey, setShowKey] = useState(false);
   const [showURL, setShowURL] = useState(false);
 
   const { streamDetails } = useStream();
+  
+  // Livepeer RTMP ingest URL
+  const rtmpUrl = "rtmp://rtmp.livepeer.com/live";
+
+  const handleCopyStreamKey = () => {
+    if (streamDetails.streamKey) {
+      copyToClipboard(streamDetails.streamKey);
+      toast.success("Stream key copied to clipboard!");
+    } else {
+      toast.error("No stream key available");
+    }
+  };
+
+  const handleCopyRtmpUrl = () => {
+    copyToClipboard(rtmpUrl);
+    toast.success("RTMP URL copied to clipboard!");
+  };
 
   return (
     <div className="flex flex-col space-y-10 mt-5 xl:w-[1000px] md:w-[500px] w-full mx-auto">
@@ -40,8 +63,10 @@ const ObsStream = () => {
               <div className="relative md:w-md w-full">
                 <Input
                   type={showKey ? "text" : "password"}
-                  placeholder="Stream Password"
+                  value={streamDetails.streamKey || "No stream key available"}
+                  placeholder="Stream Key"
                   className="h-12 rounded-[8px] !border-[#383A3F] placeholder:text-[#FAFAFAB2] w-full"
+                  readOnly
                 />
                 {!showKey ? (
                   <EyeOff
@@ -69,7 +94,8 @@ const ObsStream = () => {
                 <Button
                   className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 "
                   size="sm"
-                  onClick={() => copyToClipboard("sdfsdfsdf")}
+                  onClick={handleCopyStreamKey}
+                  disabled={!streamDetails.streamKey}
                 >
                   <Copy size={14} />
                   Copy
@@ -85,8 +111,10 @@ const ObsStream = () => {
               <div className="relative w-full md:w-md">
                 <Input
                   type={showURL ? "text" : "password"}
+                  value={rtmpUrl}
                   placeholder="Stream URL"
                   className="h-12 rounded-[8px] !border-[#383A3F] placeholder:text-[#FAFAFAB2] w-full"
+                  readOnly
                 />
                 {!showURL ? (
                   <EyeOff
@@ -106,7 +134,7 @@ const ObsStream = () => {
               <Button
                 className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 "
                 size="sm"
-                onClick={() => copyToClipboard("sdfsdfsdf")}
+                onClick={handleCopyRtmpUrl}
               >
                 <Copy size={14} />
                 Copy

@@ -7,6 +7,10 @@ type StreamDetails = {
   category: string;
   schedule: string;
   thumbnail: File | null;
+  streamId?: string;
+  streamKey?: string;
+  playbackId?: string;
+  creatorId?: string;
 };
 
 export const useStream = () => {
@@ -17,6 +21,10 @@ export const useStream = () => {
       category: "",
       schedule: "",
       thumbnail: null,
+      streamId: undefined,
+      streamKey: undefined,
+      playbackId: undefined,
+      creatorId: undefined,
     }
   );
 
@@ -30,6 +38,10 @@ export const useStream = () => {
       category: "",
       schedule: "",
       thumbnail: null,
+      streamId: undefined,
+      streamKey: undefined,
+      playbackId: undefined,
+      creatorId: undefined,
     });
   };
 

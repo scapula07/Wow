@@ -21,12 +21,13 @@ import { Button } from "@/components/ui/button";
 import GoogleAuth from "@/modules/auth/components/google-auth";
 import { VStack } from "@/components/ui/stack";
 import { authApi } from "@/firebase/auth";
+import { useAuthStore } from "@/store";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [errorResponse, setErrorResponse] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login, setError, error } = useAuthStore();
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -38,21 +39,25 @@ const Login = () => {
   // Call API to login
 
   const submit: SubmitHandler<LoginSchemaType> = async (data) => {
-    setErrorResponse(null);
+    setError(null);
     setLoading(true);
     try {
       const res = await authApi.loginWithEmail(data.email, data.password);
       if (!res.success) {
-        setErrorResponse(res.error || "Login failed");
+        setError(res.error || "Login failed");
       } else {
-           localStorage.clear();
-          localStorage.setItem('user',JSON.stringify(res));
-          navigate("/");
-        // Optionally redirect or show success
-        // e.g., navigate('/home');
+        // Convert response to User type and login
+        const user = {
+          email: data.email,
+          onboarded: (res as any).userData?.onboarded || false,
+          ...(res as any).userData,
+          ...(res as any).user
+        };
+        login(user);
+        navigate("/");
       }
     } catch (err: any) {
-      setErrorResponse(err.message || "Login failed");
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -69,7 +74,7 @@ const Login = () => {
         </p>
       </VStack>
 
-      {errorResponse && <ErrorAlert message={errorResponse} />}
+      {error && <ErrorAlert message={error} />}
 
       <Form {...form}>
         <form
