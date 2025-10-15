@@ -52,7 +52,10 @@ const MobileSidebar = ({ expanded, setExpanded }: Props) => {
           </Button>
         </div>
 
-        <nav className="flex flex-col space-y-10">
+        <nav
+          className="flex flex-col space-y-10"
+          onClick={() => setExpanded(false)}
+        >
           <SidebarItem
             icon={<Home size={20} />}
             label="Home"
@@ -80,7 +83,7 @@ const MobileSidebar = ({ expanded, setExpanded }: Props) => {
       <hr className="border-primary my-10" />
 
       <Button
-        className="rounded-[20px] w-full text-sm font-semibold py-5 pl-1 flex justify-start"
+        className="rounded-[20px] w-full text-sm font-semibold py-5 pl-1"
         // onClick={onOpen}
       >
         <div className="w-[31px] h-[31px] rounded-full text-white flex items-center justify-center bg-[#141414]">
