@@ -107,7 +107,7 @@ const StreamChat = ({ streamId }: StreamChatProps) => {
 
     try {
       const messageData = {
-        userId: user.uid,
+        userId: user.id,
         userName: user.displayName || user.email?.split('@')[0] || "Anonymous",
         userAvatar: user.photoURL || "",
         text: input.trim(),

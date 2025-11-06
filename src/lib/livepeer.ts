@@ -233,6 +233,26 @@ export const livepeerClient = {
         error: error.response?.data?.message || error.message || 'Failed to delete stream'
       };
     }
+  },
+
+  /**
+   * Get all recorded sessions for a stream
+   */
+  getStreamSessions: async (parentId: string): Promise<{ success: boolean; data?: any[]; error?: string }> => {
+    try {
+      const response = await livepeerApi.get(`/stream/${parentId}/sessions`);
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      console.error('Livepeer getStreamSessions error:', error);
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message || 'Failed to get stream sessions'
+      };
+    }
   }
 };
 

@@ -7,6 +7,7 @@ export interface StreamData {
   playbackId: string;
   streamKey: string;
   livepeerStreamId: string;
+  parentId: string;
   isActive: boolean;
   createdAt: string;
   isLive: boolean;

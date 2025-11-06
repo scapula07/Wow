@@ -20,6 +20,7 @@ interface UserData {
   firstName?: string;
   lastName?: string;
   photoURL?: string;
+  coverImageURL?: string;
   bio?: string;
   followerCount?: number;
   followingCount?: number;
@@ -86,7 +87,7 @@ const Profile = () => {
     });
 
     return () => unsubscribe();
-  }, [currentUser?.uid, id]);
+  }, [currentUser?.id, id]);
 
   // Listen to real-time follower count changes
   useEffect(() => {
@@ -140,7 +141,7 @@ const Profile = () => {
       } else {
         // Follow: Create follow document and increment counts
         await setDoc(followDocRef, {
-          followerId: currentUser.uid,
+          followerId: currentUser.id,
           followingId: id,
           createdAt: new Date().toISOString()
         });
@@ -190,6 +191,17 @@ const Profile = () => {
 
   return (
     <div id={id} className="mt-12 flex flex-col space-y-10">
+      {/* Cover Image Section */}
+      {user.coverImageURL && (
+        <div className="w-full h-48 rounded-lg overflow-hidden relative">
+          <img
+            src={user.coverImageURL}
+            alt="Cover"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+      
       <div className="flex items-center space-x-7">
         <img
           src={user.photoURL || "/assets/images/wow-live-sample.jpg"}
@@ -278,6 +290,11 @@ const Profile = () => {
               key={index}
               value={tab}
               className="data-[state=active]:bg-primary bg-[#141414] rounded-[5px] h-10 px-20 cursor-pointer text-white capitalize"
+              onClick={() => {
+                if (tab === "videos") {
+                  toast.info("Video feature coming soon!");
+                }
+              }}
             >
               {tab}
             </TabsTrigger>
@@ -289,7 +306,9 @@ const Profile = () => {
         </TabsContent>
 
         <TabsContent value="videos">
-          <ProfileVideoTab />
+          <div className="flex items-center justify-center py-20">
+            <div className="text-gray-400 text-lg">Video feature coming soon!</div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

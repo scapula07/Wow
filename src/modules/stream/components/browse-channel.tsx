@@ -1,44 +1,55 @@
 import { Input } from "@/components/ui/input";
 import { BrowseRecommendedDropdown } from "./browse-recommended-dropdown";
 import { SearchIcon } from "lucide-react";
-import LivestreamCard from "@/components/livestream-card";
+import ChannelCard from "@/components/channel-card";
 import { useState, useEffect } from "react";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
-import type { StreamData } from "@/modules/stream/types/stream.types";
+
+interface ChannelData {
+  id: string;
+  email: string;
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  photoURL?: string;
+  followerCount?: number;
+  isLive?: boolean;
+}
 
 type Props = {
   following?: boolean;
 };
 
-const BrowseLivestreams = ({ following }: Props) => {
-  const [streams, setStreams] = useState<StreamData[]>([]);
+const BrowseChannels = ({ following }: Props) => {
+  const [channels, setChannels] = useState<ChannelData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStreams = async () => {
+    const fetchChannels = async () => {
       try {
-        const q = query(
-          collection(db, "streams"),
-          orderBy("createdAt", "desc"),
+        // Fetch users/channels from Firestore
+        const channelsQuery = query(
+          collection(db, "users"),
+          orderBy("followerCount", "desc"),
           limit(12)
         );
 
-        const querySnapshot = await getDocs(q);
-        const streamData = querySnapshot.docs.map(doc => ({
+        const querySnapshot = await getDocs(channelsQuery);
+        const channelData = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
-        })) as StreamData[];
+        })) as ChannelData[];
 
-        setStreams(streamData);
+        setChannels(channelData);
       } catch (error) {
-        console.error("Error fetching streams:", error);
+        console.error("Error fetching channels:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStreams();
+    fetchChannels();
   }, []);
 
   return (
@@ -60,12 +71,12 @@ const BrowseLivestreams = ({ following }: Props) => {
         {loading ? (
           // Show loading skeletons
           [...Array(8)].map((_, i) => (
-            <LivestreamCard key={i} />
+            <ChannelCard key={i} />
           ))
         ) : (
-          // Show actual stream data
-          streams.map((stream) => (
-            <LivestreamCard key={stream.id} stream={stream} />
+          // Show actual channel data
+          channels.map((channel) => (
+            <ChannelCard key={channel.id} channel={channel} />
           ))
         )}
       </div>
@@ -73,4 +84,4 @@ const BrowseLivestreams = ({ following }: Props) => {
   );
 };
 
-export default BrowseLivestreams;
+export default BrowseChannels;

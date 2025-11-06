@@ -140,7 +140,7 @@ const LivestreamCard = ({ video, stream }: Props) => {
             </p>
             {stream?.createdAt && (
               <p className="text-[#979797] text-xs">
-                Created: {formatRelativeTime(stream.createdAt)}
+                {formatRelativeTime(stream.createdAt)}
               </p>
             )}
           </div>

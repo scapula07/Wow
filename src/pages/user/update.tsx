@@ -4,9 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Camera, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/hooks/use-auth";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/firebase/config";
+import { userApi } from "@/firebase/user";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -19,6 +17,7 @@ interface UserFormData {
   dateOfBirth: string;
   gender: "M" | "F" | "";
   photoURL: string;
+  coverImageURL: string;
 }
 
 export default function Update() {
@@ -31,10 +30,13 @@ export default function Update() {
     dateOfBirth: "",
     gender: "",
     photoURL: "",
+    coverImageURL: "",
   });
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
+  const [coverImagePreview, setCoverImagePreview] = useState<string>("");
   const [initialLoading, setInitialLoading] = useState(true);
 
   const { user } = useAuth();
@@ -46,9 +48,9 @@ export default function Update() {
       if (!user?.id) return;
 
       try {
-        const userDoc = await getDoc(doc(db, "users", user.id));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
+        const result = await userApi.get(user.id);
+        if (result.success) {
+          const userData = result.data as any;
           setFormData({
             firstName: userData.firstName || "",
             lastName: userData.lastName || "",
@@ -58,8 +60,10 @@ export default function Update() {
             dateOfBirth: userData.dateOfBirth || "",
             gender: userData.gender || "",
             photoURL: userData.photoURL || "",
+            coverImageURL: userData.coverImageURL || "",
           });
           setImagePreview(userData.photoURL || "");
+          setCoverImagePreview(userData.coverImageURL || "");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -70,7 +74,7 @@ export default function Update() {
     };
 
     fetchUserData();
-  }, [user?.id]);
+  }, [user?.uid]);
 
   const handleInputChange = (field: keyof UserFormData, value: string) => {
     setFormData(prev => ({
@@ -91,12 +95,16 @@ export default function Update() {
     }
   };
 
-  const uploadImage = async (): Promise<string> => {
-    if (!imageFile || !user?.id) return formData.photoURL;
-
-    const imageRef = ref(storage, `profile-images/${user.uid}/${Date.now()}`);
-    await uploadBytes(imageRef, imageFile);
-    return await getDownloadURL(imageRef);
+  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCoverImageFile(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCoverImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,19 +117,13 @@ export default function Update() {
     setLoading(true);
 
     try {
-      let photoURL = formData.photoURL;
-      
-      // Upload new image if selected
-      if (imageFile) {
-        photoURL = await uploadImage();
-      }
+      // Prepare files for upload
+      const files: { profilePhoto?: File; coverImage?: File } = {};
+      if (imageFile) files.profilePhoto = imageFile;
+      if (coverImageFile) files.coverImage = coverImageFile;
 
-      // Update user document
-      await updateDoc(doc(db, "users", user.id), {
-        ...formData,
-        photoURL,
-        updatedAt: new Date().toISOString(),
-      });
+      // Update user with files using userApi
+      await userApi.updateWithFiles(user.id, formData, files);
 
       toast.success("Profile updated successfully!");
       navigate(`/user/${user.id}/profile`);
@@ -164,9 +166,23 @@ export default function Update() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Cover Image Placeholder */}
           <div className="w-full h-32 bg-gray-600 rounded-lg relative overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-gray-400">Cover Image</span>
-            </div>
+            {coverImagePreview ? (
+              <img
+                src={coverImagePreview}
+                alt="Cover"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-gray-400">Cover Image</span>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleCoverImageChange}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
             <Button
               type="button"
               variant="ghost"
@@ -239,13 +255,13 @@ export default function Update() {
 
           {/* Username */}
           <div className="space-y-2">
-            <Label htmlFor="displayName" className="text-white">Username</Label>
+            <Label htmlFor="displayName" className="text-white">Username </Label>
             <Input
               id="displayName"
               value={formData.displayName}
               onChange={(e) => handleInputChange("displayName", e.target.value)}
               className="bg-transparent border-gray-600 text-white"
-              placeholder="Enter username"
+              placeholder="This will be your public channel name"
             />
           </div>
 

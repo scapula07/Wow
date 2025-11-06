@@ -57,6 +57,7 @@ export const streamApi = {
                 playbackId: livepeerResult.data!.playbackId,
                 streamKey: livepeerResult.data!.streamKey,
                 livepeerStreamId: livepeerResult.data!.id,
+                parentId: livepeerResult.data!.parentId,
                 isActive: livepeerResult.data!.isActive,
                 // Additional metadata
                 createdAt: new Date().toISOString(),

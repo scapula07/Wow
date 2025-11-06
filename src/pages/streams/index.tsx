@@ -10,9 +10,27 @@ import type { StreamData } from "@/modules/stream/types/stream.types";
 import { PlayerWithControls } from "@/components/player-with-controls";
 import type { Src } from "@livepeer/react";
 import { Toaster } from "@/components/ui/sonner";
+import { livepeerClient } from "@/lib/livepeer";
 
-// Helper function to create Livepeer source
-const createPlayerSrc = (playbackId: string): Src[] => {
+interface StreamSession {
+  id: string;
+  parentId: string;
+  name: string;
+  userId: string;
+  createdAt: number;
+  lastSeen: number;
+  sourceSegments: number;
+  transcodedSegments: number;
+  sourceSegmentsDuration: number;
+  transcodedSegmentsDuration: number;
+  recordingStatus: string;
+  recordingUrl?: string;
+  mp4Url?: string;
+  playbackId?: string;
+}
+
+// Helper function to create Livepeer source for HLS
+const createHlsPlayerSrc = (playbackId: string): Src[] => {
   return [
     {
       src: `https://livepeercdn.studio/hls/${playbackId}/index.m3u8`,
@@ -24,17 +42,31 @@ const createPlayerSrc = (playbackId: string): Src[] => {
   ];
 };
 
+// Helper function to create video source for recorded content
+const createVideoPlayerSrc = (recordingUrl: string): Src[] => {
+  return [
+    {
+      src: recordingUrl,
+      width: 1920,
+      height: 1080,
+      mime: 'video/mp4' as const,
+      type: 'video' as const
+    }
+  ];
+};
+
 const VodStream = () => {
   const [streamData, setStreamData] = useState<StreamData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [playerSrc, setPlayerSrc] = useState<Src[] | null>(null);
+  const [playbackType, setPlaybackType] = useState<'live' | 'recorded' | null>(null);
+  const [recordingSession, setRecordingSession] = useState<StreamSession | null>(null);
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  console.log(id);
 
-  // Fetch stream data from Firestore
+  // Fetch stream data and determine playback method
   useEffect(() => {
     const fetchStreamData = async () => {
       if (!id) {
@@ -51,18 +83,8 @@ const VodStream = () => {
           console.log("Stream data:", data);
           setStreamData(data);
           
-          // Generate player source from playbackId
-          if (data.playbackId) {
-            console.log("Playback ID:", data.playbackId);
-            
-            // Create proper player source
-            const playerSource = createPlayerSrc(data.playbackId);
-            setPlayerSrc(playerSource);
-            
-            console.log("Generated player source:", playerSource);
-          } else {
-            console.log("No playback ID found in stream data");
-          }
+          // Determine playback method
+          await determinePlaybackMethod(data);
         } else {
           setError("Stream not found");
         }
@@ -71,6 +93,72 @@ const VodStream = () => {
         setError("Failed to load stream data");
       } finally {
         setLoading(false);
+      }
+    };
+
+    const determinePlaybackMethod = async (data: StreamData) => {
+      try {
+        // Check if stream is currently live
+        if (data.isActive && data.isLive && data.playbackId) {
+          console.log("Stream is live, using HLS playback");
+          setPlaybackType('live');
+          const playerSource = createHlsPlayerSrc(data.playbackId);
+          setPlayerSrc(playerSource);
+          console.log("Generated live player source:", playerSource);
+        } else {
+          // Stream is offline, try to get recorded sessions
+          console.log("Stream is offline, checking for recorded sessions");
+          
+          if (!data.parentId) {
+            throw new Error('No parentId available for recorded playback');
+          }
+
+          const sessionsResult = await livepeerClient.getStreamSessions(data.parentId);
+          
+          if (!sessionsResult.success) {
+            throw new Error(sessionsResult.error || 'Failed to get recorded sessions');
+          }
+
+          const sessions = sessionsResult.data as StreamSession[];
+          console.log("Retrieved sessions:", sessions);
+          
+          if (!sessions || sessions.length === 0) {
+            throw new Error('No recorded sessions available');
+          }
+
+          // Get the most recent completed session
+          const completedSessions = sessions.filter(session => 
+            session.recordingStatus === 'ready' && 
+            (session.mp4Url || session.recordingUrl)
+          );
+
+          console.log("Completed sessions:", completedSessions);
+
+          if (completedSessions.length === 0) {
+            throw new Error('No completed recorded sessions available');
+          }
+
+          // Sort by creation date (most recent first)
+          const latestSession = completedSessions.sort((a, b) => b.createdAt - a.createdAt)[0];
+          
+          const recordUrl = latestSession.mp4Url || latestSession.recordingUrl;
+          
+          if (!recordUrl) {
+            throw new Error('No recording URL available');
+          }
+
+          console.log("Using recorded session:", latestSession);
+          console.log("Recording URL:", recordUrl);
+
+          setPlaybackType('recorded');
+          setRecordingSession(latestSession);
+          const playerSource = createVideoPlayerSrc(recordUrl);
+          setPlayerSrc(playerSource);
+          console.log("Generated recorded player source:", playerSource);
+        }
+      } catch (err) {
+        console.error("Error determining playback method:", err);
+        setError(err instanceof Error ? err.message : 'Failed to determine playback method');
       }
     };
 
@@ -105,7 +193,20 @@ const VodStream = () => {
       <div className="flex space-x-6 px-4 py-5">
         <div className="flex flex-col space-y-12 w-full md:w-2/3">
           <div className="flex flex-col space-y-1">
-            <div className="w-full h-[400px] rounded-[10px] overflow-hidden">
+            <div className="w-full h-[400px] rounded-[10px] overflow-hidden relative">
+              {/* Live/Recorded indicator */}
+              <div className="absolute top-4 left-4 z-10">
+                {playbackType === 'live' ? (
+                  <span className="bg-red-600 px-3 py-1 rounded text-white text-sm font-bold">
+                    🔴 LIVE
+                  </span>
+                ) : playbackType === 'recorded' ? (
+                  <span className="bg-blue-600 px-3 py-1 rounded text-white text-sm font-bold">
+                    📹 RECORDED
+                  </span>
+                ) : null}
+              </div>
+
               {playerSrc ? (
                 <PlayerWithControls src={playerSrc} />
               ) : (
@@ -125,6 +226,11 @@ const VodStream = () => {
             <div className="flex items-center justify-between px-2 py-1 bg-[#232222] rounded-[5px]">
               <div className="text-white text-sm">
                 <span className="font-medium">{streamData.streamName}</span>
+                {playbackType === 'recorded' && recordingSession && (
+                  <span className="text-gray-400 text-xs ml-2">
+                    • Recorded {new Date(recordingSession.createdAt).toLocaleDateString()}
+                  </span>
+                )}
               </div>
               <div className="text-gray-400 text-xs">
                 Stream ID: {streamData.id}

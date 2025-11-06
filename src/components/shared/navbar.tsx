@@ -45,7 +45,12 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <span className="text-white text-sm flex items-center">Welcome, {user?.email}</span>
+            <span 
+              className="text-white text-sm flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate(`/user/${user?.id}/profile`)}
+            >
+              Welcome, {user?.email}
+            </span>
             <Button 
               className="bg-[#3A3A3A] rounded-[20px] w-fit text-sm font-semibold py-5"
               onClick={handleLogout}
