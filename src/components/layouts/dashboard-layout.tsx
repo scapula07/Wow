@@ -11,8 +11,8 @@ const DashboardLayout: FC<PropsWithChildren> = ({ children }) => {
       <Sidebar expanded={expanded} setExpanded={setExpanded} />
       <main
         className={cn(
-          expanded ? "ml-64" : "ml-16",
-          "px-10 transition-all duration-300"
+          expanded ? "md:ml-64" : "md:ml-16",
+          "md:px-10 px-5 transition-all duration-300"
         )}
       >
         <Navbar />

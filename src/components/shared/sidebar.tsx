@@ -23,7 +23,7 @@ const Sidebar = ({ expanded, setExpanded }: Props) => {
   return (
     <aside
       className={cn(
-        "fixed top-0 left-3 h-screen bg-[#141414]  text-white flex flex-col transition-all duration-300 rounded-[15px] px-3 py-6",
+        "fixed top-0 left-3 h-screen bg-[#141414] text-white hidden md:flex flex-col transition-all duration-300 rounded-[15px] px-3 py-6",
         expanded ? "w-64" : "w-16"
       )}
     >

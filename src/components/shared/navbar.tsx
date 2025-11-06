@@ -6,7 +6,9 @@ import { useNavigate } from "react-router";
 import useDisclosure from "@/lib/hooks/use-disclosure";
 import CreateStream from "@/modules/stream/components/dialogs/create-stream";
 import { useAuth } from "@/lib/hooks/use-auth";
-
+import MobileSidebar from "./mobile-sidebar";
+import { useState } from "react";
+import { AlignJustify } from "lucide-react";
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
@@ -17,9 +19,17 @@ const Navbar = () => {
     navigate('/auth/login');
   };
 
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <HStack className="pt-5 items-center justify-between">
-      <div className="bg-[#141414] w-[500px] !h-12 relative left-20">
+    <HStack className="pt-5 px-5 pb-5 items-center justify-between bg-[#141414] md:bg-inherit md:pb-0 -mx-5 md:mx-0 md:px-0 sticky md:static top-0 z-50 shadow-2xl">
+      <img
+        src="/assets/icons/wow-logo-full.svg"
+        alt="WOW"
+        className="w-[85px] h-[24px] md:hidden"
+      />
+
+      <div className="bg-[#141414] lg:w-[400px] xl:w-[500px] md:w-2/5 !h-12 relative lg:left-20 md:left-10 hidden md:block">
         <Input
           placeholder="Search"
           className="pl-10 border-none !bg-inherit !text-white !h-full !w-full"
@@ -71,7 +81,19 @@ const Navbar = () => {
         </Button>
       </HStack>
 
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden"
+        title="Open Menu"
+        onClick={() => setExpanded(true)}
+      >
+        <AlignJustify className="!w-7 !h-7" />
+      </Button>
+
       <CreateStream open={isOpen} onClose={onClose} />
+
+      <MobileSidebar expanded={expanded} setExpanded={setExpanded} />
     </HStack>
   );
 };

@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { collection, query, orderBy, limit, startAfter, getDocs, QueryDocumentSnapshot, type DocumentData } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import type { StreamData } from "@/modules/stream/types/stream.types";
-
+import { Link } from "react-router";
 const STREAMS_PER_PAGE = 8;
 
 const LivestreamsForYou = () => {
@@ -191,13 +191,17 @@ const LivestreamsForYou = () => {
     );
   }
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium">Livestreams For You </h2>
+    <div className="flex flex-col space-y-4 pb-10">
+      <div className="flex md:flex-row flex-col md:space-y-0 space-y-5 items-center justify-between">
+        <h2 className="md:text-2xl text-xl font-medium">
+          Livestreams For You{" "}
+        </h2>
         <div className="flex items-center">
-          <Button variant="link" className="hover:no-underline">
-            View all
-          </Button>
+          <Link to="/browse">
+            <Button variant="link" className="hover:no-underline">
+              View all
+            </Button>
+          </Link>
           <Button className="bg-[#3A3A3A] text-[#FAFAFAB2] rounded-[20px] h-10 !px-4">
             <Filter />
             Filter
