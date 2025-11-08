@@ -1,43 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 import CarouselItem from "./carousel-item";
-
-const items = [
-  {
-    id: 1,
-    image: "/assets/images/wow-live-sample.jpg",
-    title: "Wade Fox",
-    followers: "12.5k",
-    live: "11.7k",
-  },
-  {
-    id: 2,
-    image: "/assets/images/ufo2.jpg",
-    title: "Quantum Void",
-    followers: "8.1k",
-    live: "9.2k",
-  },
-  {
-    id: 3,
-    image: "/assets/images/ufo3.jpg",
-    title: "Area 52",
-    followers: "5.3k",
-    live: "6.4k",
-  },
-];
+import { collection, query, where, limit, onSnapshot } from "firebase/firestore";
+import { db } from "@/firebase/config";
+import type { StreamData } from "@/modules/stream/types/stream.types";
+import { useNavigate } from "react-router-dom";
 
 const Carousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [streams, setStreams] = useState<StreamData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  // Fetch top 3 live streams by viewership
+  useEffect(() => {
+    const q = query(
+      collection(db, "streams"),
+      where("isLive", "==", true),
+      limit(10) // Fetch more and sort on client side
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const liveStreams = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as StreamData[];
+
+        // Sort by viewerCount on client side and take top 3
+        const sortedStreams = liveStreams
+          .sort((a, b) => (b.viewerCount || 0) - (a.viewerCount || 0))
+          .slice(0, 3);
+
+        console.log("📺 Live streams for carousel:", sortedStreams);
+        setStreams(sortedStreams);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching live streams:", error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   const prev = () => {
-    setActiveIndex((i) => (i === 0 ? items.length - 1 : i - 1));
+    const length = 3; // Always 3 slots
+    setActiveIndex((i) => (i === 0 ? length - 1 : i - 1));
   };
 
   const next = () => {
-    setActiveIndex((i) => (i === items.length - 1 ? 0 : i + 1));
+    const length = 3; // Always 3 slots
+    setActiveIndex((i) => (i === length - 1 ? 0 : i + 1));
   };
 
   const handlers = useSwipeable({
@@ -47,13 +66,31 @@ const Carousel = () => {
     trackMouse: true,
   });
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="relative flex items-center justify-center h-[500px] overflow-hidden -mx-5">
+        <div className="text-white text-lg">Loading top streams...</div>
+      </div>
+    );
+  }
+
+  // Always show 3 items - fill remaining slots with skeleton cards
+  const TOTAL_SLOTS = 3;
+  const displayItems: (StreamData | null)[] = [
+    ...streams,
+    ...Array(Math.max(0, TOTAL_SLOTS - streams.length)).fill(null)
+  ];
+
   return (
     <div
       {...handlers}
       className="relative flex items-center justify-center h-[500px] overflow-hidden -mx-5"
     >
-      {items.map((item, index) => {
-        const position = (index - activeIndex + items.length) % items.length;
+      {displayItems.map((stream, index) => {
+        const isSkeletonCard = stream === null;
+        const length = TOTAL_SLOTS;
+        const position = (index - activeIndex + length) % length;
 
         let style =
           "opacity-0 scale-75 translate-x-0 z-0 transition-all duration-500 ease-in-out";
@@ -62,21 +99,52 @@ const Carousel = () => {
         } else if (position === 1) {
           style =
             "opacity-30 scale-80 translate-x-1/2 sm:translate-x-2/3 z-10 blur-[1px]";
-        } else if (position === items.length - 1) {
+        } else if (position === length - 1) {
           style =
             "opacity-30 scale-80 -translate-x-1/2 sm:-translate-x-2/3 z-10 blur-[1px]";
         }
 
         return (
           <div
-            key={item.id}
+            key={isSkeletonCard ? `skeleton-${index}` : stream.id}
             className={cn(
               "absolute md:top-6 top-5 w-[90%] sm:w-[70%] md:w-[80%] lg:w-[45%]",
               "transition-all duration-500 ease-in-out",
               style
             )}
+            onClick={() => {
+              if (!isSkeletonCard && stream.id) {
+                navigate(`/streams/${stream.id}/live`);
+              }
+            }}
           >
-            <CarouselItem img={item.image} />
+            {isSkeletonCard ? (
+              <div className="relative bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg overflow-hidden h-[360px] animate-pulse">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-700/20 to-transparent shimmer" />
+                <div className="p-4 h-full flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="h-6 bg-gray-700/50 rounded w-2/3" />
+                    <div className="h-4 bg-gray-700/50 rounded w-1/2" />
+                  </div>
+                  <div className="w-full bg-[#070707B2] rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-[53px] h-[53px] rounded-full bg-gray-700/50" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-700/50 rounded w-2/3" />
+                        <div className="h-3 bg-gray-700/50 rounded w-1/3" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="cursor-pointer hover:scale-105 transition-transform">
+                <CarouselItem 
+                  img={stream.streamThumbnail || "/assets/images/wow-live-sample.jpg"}
+                  stream={stream}
+                />
+              </div>
+            )}
           </div>
         );
       })}

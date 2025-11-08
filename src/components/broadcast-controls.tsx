@@ -18,13 +18,11 @@ import * as Broadcast from "@livepeer/react/broadcast";
 import * as Popover from "@radix-ui/react-popover";
 import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react";
 import React from "react";
+import { getIngest } from "@livepeer/react/external";
 
 import { toast } from "sonner";
 
-function getIngest(streamKey: string | null) {
-  if (!streamKey) return null;
-  return `rtmp://rtmp.livepeer.com/live/${streamKey}`;
-}
+
 
 export function BroadcastWithControls({
   streamKey,
@@ -33,7 +31,7 @@ export function BroadcastWithControls({
 }) {
     console.log("Stream Key in BroadcastWithControls:", streamKey);
   const ingestUrl = getIngest(streamKey);
-
+   console.log("Ingest URL in BroadcastWithControls:", ingestUrl);
   return !ingestUrl ? (
     <BroadcastLoading
       title="Invalid stream key"
@@ -50,7 +48,7 @@ export function BroadcastWithControls({
             : null
         }
         aspectRatio={16 / 9}
-        ingestUrl={ingestUrl}
+        ingestUrl={getIngest(streamKey)}
       >
         <Broadcast.Container className="w-full h-full overflow-hidden rounded-sm bg-gray-950">
           <Broadcast.Video title="Live stream" className="w-full h-full" />

@@ -2,12 +2,44 @@ import { Input } from "@/components/ui/input";
 import { BrowseRecommendedDropdown } from "./browse-recommended-dropdown";
 import { SearchIcon } from "lucide-react";
 import LivestreamCategoryCard from "@/components/livestream-category-card";
+import { LIVESTREAM_CATEGORIES, type CategoryData } from "@/lib/constants/livestream-categories";
+import { useState, useEffect } from "react";
+import { categoryCountCache } from "@/lib/utils/category-counter";
 
 type Props = {
   following?: boolean;
 };
 
 const BrowseCategories = ({ following }: Props) => {
+  const [categories, setCategories] = useState<CategoryData[]>(LIVESTREAM_CATEGORIES);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategoryCounts = async () => {
+      try {
+        const counts = await categoryCountCache.getCounts();
+        
+        // Update categories with real counts from database
+        const updatedCategories = LIVESTREAM_CATEGORIES.map(category => ({
+          ...category,
+          streamCount: counts[category.id] || 0
+        }));
+        
+        // Sort by stream count (highest to lowest)
+        const sortedCategories = updatedCategories.sort((a, b) => 
+          (b.streamCount || 0) - (a.streamCount || 0)
+        );
+        
+        setCategories(sortedCategories);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching category counts:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryCounts();
+  }, []);
   return (
     <div>
       {!following && (
@@ -24,9 +56,9 @@ const BrowseCategories = ({ following }: Props) => {
       )}
 
       <div className="grid md:grid-cols-4 grid-cols-1 gap-x-5 gap-y-8">
-        {[...Array(9)].map((_, i) => (
-          <div className="h-[200px]" key={i}>
-            <LivestreamCategoryCard views={Math.floor(Math.random() * 1000)} />
+        {categories.map((category) => (
+          <div className="h-[200px]" key={category.id}>
+            <LivestreamCategoryCard category={category} />
           </div>
         ))}
       </div>

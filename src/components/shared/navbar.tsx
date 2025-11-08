@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/hooks/use-auth";
 import MobileSidebar from "./mobile-sidebar";
 import { useState } from "react";
 import { AlignJustify } from "lucide-react";
+
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const Navbar = () => {
         <SearchIcon className="text-[#5B5B5B] absolute left-2 top-1/2 -translate-y-1/2 placeholder:text-[#9F9F9F]" />
       </div>
 
-      <HStack className="space-x-5">
+      <HStack className="space-x-5 hidden md:flex">
         {!isLoggedIn ? (
           <>
             <Button 

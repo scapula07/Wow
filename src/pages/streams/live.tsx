@@ -75,14 +75,6 @@ const LiveStream = () => {
           <div className="w-full h-[400px] rounded-[10px] overflow-hidden">
             <BroadcastWithControls streamKey={streamData.streamKey} />
           </div>
-          <div className="flex items-center justify-between px-2 py-1 bg-[#232222] rounded-[5px]">
-            <div className="text-white text-sm">
-              <span className="font-medium">{streamData.streamName}</span>
-            </div>
-            <div className="text-gray-400 text-xs">
-              Stream ID: {streamData.id}
-            </div>
-          </div>
         </div>
         <StreamUserDetails streamData={streamData} />
       </div>

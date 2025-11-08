@@ -70,7 +70,7 @@ const routes: RouteConfig[] = [
 
   // Stream
   {
-    path: "/streams/:name/create",
+    path: "/streams/:id/create",
     page: CreateStream,
     layout: DashboardLayout,
   },

@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { CircleX, MoreVertical } from "lucide-react";
+import { CircleX, MoreVertical, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,11 +7,16 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import type { StreamData } from "@/modules/stream/types/stream.types";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { formatRelativeTime } from "@/lib/utils/date";
+import { useAuth } from "@/lib/hooks/use-auth";
+import { toast } from "sonner";
+import { DeleteModal } from "./ui/delete-modal";
+import { livepeerClient } from "@/lib/livepeer";
+import { viewershipCache } from "@/lib/cache/viewership-cache";
 
 interface UserData {
   id: string;
@@ -28,8 +33,20 @@ type Props = {
 
 const LivestreamCard = ({ video, stream }: Props) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
   const [creator, setCreator] = useState<UserData | null>(null);
   const [loadingCreator, setLoadingCreator] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [viewership, setViewership] = useState<number | null>(null);
+  const [loadingViewership, setLoadingViewership] = useState(false);
+
+  // Check if current user owns this stream
+  const isOwner = user?.id === stream?.creatorId;
+  
+  // Check if we're on a profile page
+  const isOnProfilePage = location.pathname.includes('/profile');
 
   // Fetch creator data when stream changes
   useEffect(() => {
@@ -55,9 +72,56 @@ const LivestreamCard = ({ video, stream }: Props) => {
     fetchCreator();
   }, [stream?.creatorId]);
 
+  // Fetch viewership data from Livepeer (only for non-live streams)
+  useEffect(() => {
+    const fetchViewership = async () => {
+      // Only fetch viewership for recorded/offline streams
+      if (!stream?.playbackId || stream?.isLive) {
+        setLoadingViewership(false);
+        return;
+      }
+      
+      // Check cache first
+      const cachedViews = viewershipCache.get(stream.playbackId);
+      if (cachedViews !== null) {
+        console.log(`📦 Using cached viewership for ${stream.playbackId}:`, cachedViews);
+        setViewership(cachedViews);
+        setLoadingViewership(false);
+        return;
+      }
+      
+      // Fetch from Livepeer API
+      setLoadingViewership(true);
+      try {
+        const { success, data } = await livepeerClient.getViewership(stream.playbackId);
+        if (success && data) {
+          // Livepeer returns total views - extract the viewCount
+          const totalViews = data[0]?.viewCount || data.viewCount || 0;
+          setViewership(totalViews);
+          
+          // Cache the result
+          viewershipCache.set(stream.playbackId, totalViews);
+          console.log(`💾 Cached viewership for ${stream.playbackId}:`, totalViews);
+        }
+      } catch (error) {
+        console.error("Error fetching viewership:", error);
+      } finally {
+        setLoadingViewership(false);
+      }
+    };
+
+    fetchViewership();
+  }, [stream?.playbackId, stream?.isLive]);
+
   const handleCardClick = () => {
     if (stream?.id) {
-      navigate(`/streams/${stream.id}`);
+      // If user owns this stream AND we're on a profile page, navigate to create page
+      if (isOwner && isOnProfilePage) {
+        navigate(`/streams/${stream.id}/create`);
+      } else {
+        // Otherwise, navigate to viewer page
+        navigate(`/streams/${stream.id}`);
+      }
     }
   };
 
@@ -65,6 +129,34 @@ const LivestreamCard = ({ video, stream }: Props) => {
     e.stopPropagation(); // Prevent card click from triggering
     if (creator?.id) {
       navigate(`/user/${creator.id}/profile`);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click from triggering
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!stream?.id) return;
+
+    setDeleting(true);
+    try {
+      // Delete stream document from Firestore
+      await deleteDoc(doc(db, "streams", stream.id));
+      
+      toast.success("Stream deleted successfully");
+      setShowDeleteModal(false);
+      
+      // Optionally refresh the page or remove the card from view
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error) {
+      console.error("Error deleting stream:", error);
+      toast.error("Failed to delete stream");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -92,7 +184,10 @@ const LivestreamCard = ({ video, stream }: Props) => {
         {!video && (
           <span className="bg-[#141414B2] px-1.5 rounded-[2px] flex items-center font-semibold text-xs absolute bottom-5 right-3">
             <span className="text-[#FF0000] text-lg mr-1.5">●</span> 
-            {stream ? formatViewerCount(stream.viewerCount) : "0"}
+            {loadingViewership 
+              ? "..." 
+              : formatViewerCount(viewership !== null ? viewership : (stream?.viewerCount || 0))
+            }
           </span>
         )}
         
@@ -170,13 +265,35 @@ const LivestreamCard = ({ video, stream }: Props) => {
               />
               Not Interested
             </DropdownMenuItem>
-            <DropdownMenuItem className="hover:!bg-gray-500 text-[11px] hover:!text-[#FAFAFA] cursor-pointer py-2 !flex !items-center">
-              <CircleX className="!text-[#FAFAFA]" />
-              Block Stream
-            </DropdownMenuItem>
+            
+            {/* Only show delete option if user owns stream AND we're on profile page */}
+            {isOwner && isOnProfilePage ? (
+              <DropdownMenuItem 
+                className="hover:!bg-gray-500 text-[11px] hover:!text-[#FAFAFA] cursor-pointer py-2 !flex !items-center text-red-400 hover:!text-red-300"
+                onClick={handleDeleteClick}
+              >
+                <Trash2 className="!text-red-400 w-4 h-4" />
+                Delete Stream
+              </DropdownMenuItem>
+            ) : !isOwner ? (
+              <DropdownMenuItem className="hover:!bg-gray-500 text-[11px] hover:!text-[#FAFAFA] cursor-pointer py-2 !flex !items-center">
+                <CircleX className="!text-[#FAFAFA]" />
+                Block Stream
+              </DropdownMenuItem>
+            ) : null}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        open={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Stream"
+        itemName={stream?.streamName}
+        isDeleting={deleting}
+      />
     </div>
   );
 };

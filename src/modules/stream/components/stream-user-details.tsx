@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { formatRelativeTime } from "@/lib/utils/date";
+import { livepeerClient } from "@/lib/livepeer";
+import { viewershipCache } from "@/lib/cache/viewership-cache";
 
 interface UserData {
   id: string;
@@ -21,6 +23,7 @@ interface StreamUserDetailsProps {
 const StreamUserDetails = ({ streamData }: StreamUserDetailsProps) => {
   const [creator, setCreator] = useState<UserData | null>(null);
   const [loadingCreator, setLoadingCreator] = useState(false);
+  const [viewership, setViewership] = useState<number>(0);
 
   // Fetch creator data when streamData changes
   useEffect(() => {
@@ -45,6 +48,64 @@ const StreamUserDetails = ({ streamData }: StreamUserDetailsProps) => {
 
     fetchCreator();
   }, [streamData?.creatorId]);
+
+  // Fetch viewership data from Livepeer
+  useEffect(() => {
+    const fetchViewership = async () => {
+      if (!streamData?.playbackId) {
+        setViewership(0);
+        return;
+      }
+
+      // For live streams, always fetch fresh data (no cache)
+      if (streamData.isLive) {
+        try {
+          const { success, data } = await livepeerClient.getViewership(streamData.playbackId);
+          if (success && data) {
+            const totalViews = data[0]?.viewCount || data.viewCount || 0;
+            setViewership(totalViews);
+            console.log(`📺 Real-time viewership for ${streamData.playbackId}:`, totalViews);
+          }
+        } catch (error) {
+          console.error("Error fetching viewership:", error);
+        }
+        return;
+      }
+      
+      // For offline streams, check cache first
+      const cachedViews = viewershipCache.get(streamData.playbackId);
+      if (cachedViews !== null) {
+        console.log(`📦 Using cached viewership for ${streamData.playbackId}:`, cachedViews);
+        setViewership(cachedViews);
+        return;
+      }
+      
+      // Fetch from Livepeer API
+      try {
+        const { success, data } = await livepeerClient.getViewership(streamData.playbackId);
+        if (success && data) {
+          const totalViews = data[0]?.viewCount || data.viewCount || 0;
+          setViewership(totalViews);
+          viewershipCache.set(streamData.playbackId, totalViews);
+          console.log(`💾 Cached viewership for ${streamData.playbackId}:`, totalViews);
+        }
+      } catch (error) {
+        console.error("Error fetching viewership:", error);
+      }
+    };
+
+    fetchViewership();
+
+    // For live streams, refresh viewership every 10 seconds for real-time updates
+    let interval: NodeJS.Timeout | null = null;
+    if (streamData?.isLive && streamData?.playbackId) {
+      interval = setInterval(fetchViewership, 10000); // 10 seconds
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [streamData?.playbackId, streamData?.isLive]);
 
   return (
     <div className="flex flex-col space-y-7 pb-6">
@@ -77,7 +138,7 @@ const StreamUserDetails = ({ streamData }: StreamUserDetailsProps) => {
               )}
             </h3>
             <p className="text-xl font-medium">
-              {streamData.viewerCount || 0}{" "}
+              {viewership.toLocaleString()}{" "}
               <span className="text-[#FFFFFFB2]">viewers</span>{" "}
               {streamData.isLive && (
                 <>

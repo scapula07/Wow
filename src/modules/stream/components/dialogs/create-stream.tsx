@@ -30,6 +30,7 @@ import { useStream } from "../../hooks/useStream";
 import { streamApi } from "@/firebase/stream";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { toast } from "sonner";
+import { LIVESTREAM_CATEGORIES } from "@/lib/constants/livestream-categories";
 
 type Props = {
   open: boolean;
@@ -156,8 +157,12 @@ const CreateStream = ({ open, onClose }: Props) => {
                             <SelectTrigger className="w-xs !h-12 rounded-[5px] bg-[#181717] border-0 !text-[#AAAAAA]">
                               <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
-                            <SelectContent className="text-white bg-[#000] border-[1.5px] border-[#383A3F]">
-                              <SelectItem value="games">Games</SelectItem>
+                            <SelectContent className="text-white bg-[#000] border-[1.5px] border-[#383A3F] max-h-[300px]">
+                              {LIVESTREAM_CATEGORIES.map((category) => (
+                                <SelectItem key={category.id} value={category.id}>
+                                  {category.name}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </FormControl>

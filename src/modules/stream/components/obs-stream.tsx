@@ -3,26 +3,25 @@ import { Input } from "@/components/ui/input";
 import { copyToClipboard } from "@/lib/utils";
 import { Copy, Eye, EyeOff, RotateCcw } from "lucide-react";
 import { useState } from "react";
-import { useStream } from "../hooks/useStream";
 import type { StreamData } from "../types/stream.types";
 import { toast } from "sonner";
 
 interface ObsStreamProps {
-  streamData?: StreamData;
+  streamData?: StreamData | null;
 }
 
-const ObsStream = ({ streamData }: ObsStreamProps) => {
+const ObsStream = ({ streamDetails }: any) => {
   const [showKey, setShowKey] = useState(false);
   const [showURL, setShowURL] = useState(false);
 
-  const { streamDetails } = useStream();
+  // const { streamDetails } = useStream();
   
   // Livepeer RTMP ingest URL
   const rtmpUrl = "rtmp://rtmp.livepeer.com/live";
 
   const handleCopyStreamKey = () => {
-    if (streamDetails.streamKey) {
-      copyToClipboard(streamDetails.streamKey);
+    if (streamDetails?.streamKey) {
+      copyToClipboard(streamDetails?.streamKey);
       toast.success("Stream key copied to clipboard!");
     } else {
       toast.error("No stream key available");
@@ -50,7 +49,7 @@ const ObsStream = ({ streamData }: ObsStreamProps) => {
             <label className="text-base text-[#FAFAFA]">Stream Name</label>
 
             <Input
-              value={streamDetails.name}
+              value={streamDetails?.streamName}
               placeholder="Give your stream a name"
               className="h-12 rounded-[8px] !border-[#383A3F] placeholder:text-[#FAFAFAB2] w-md"
             />
@@ -63,7 +62,7 @@ const ObsStream = ({ streamData }: ObsStreamProps) => {
               <div className="relative md:w-md w-full">
                 <Input
                   type={showKey ? "text" : "password"}
-                  value={streamDetails.streamKey || "No stream key available"}
+                  value={streamDetails?.streamKey || "No stream key available"}
                   placeholder="Stream Key"
                   className="h-12 rounded-[8px] !border-[#383A3F] placeholder:text-[#FAFAFAB2] w-full"
                   readOnly
@@ -95,7 +94,7 @@ const ObsStream = ({ streamData }: ObsStreamProps) => {
                   className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 "
                   size="sm"
                   onClick={handleCopyStreamKey}
-                  disabled={!streamDetails.streamKey}
+                  disabled={!streamDetails?.streamKey}
                 >
                   <Copy size={14} />
                   Copy

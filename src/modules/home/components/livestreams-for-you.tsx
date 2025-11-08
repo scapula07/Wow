@@ -2,10 +2,10 @@ import LivestreamCard from "@/components/livestream-card";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { collection, query, orderBy, limit, startAfter, getDocs, QueryDocumentSnapshot, type DocumentData } from "firebase/firestore";
+import { collection, query, limit, startAfter, getDocs, QueryDocumentSnapshot, type DocumentData } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import type { StreamData } from "@/modules/stream/types/stream.types";
-import { Link } from "react-router";
+
 const STREAMS_PER_PAGE = 8;
 
 const LivestreamsForYou = () => {
@@ -37,6 +37,8 @@ const LivestreamsForYou = () => {
   // Fetch initial streams
   const fetchStreams = useCallback(async (isLoadMore = false) => {
     try {
+      console.log("🔍 Fetching streams...", { isLoadMore });
+      
       if (isLoadMore) {
         if (loadingMoreRef.current || !hasMoreRef.current) return; // Prevent multiple simultaneous requests
         setLoadingMore(true);
@@ -52,7 +54,6 @@ const LivestreamsForYou = () => {
 
       let q = query(
         collection(db, "streams"),
-        orderBy("createdAt", "desc"),
         limit(STREAMS_PER_PAGE)
       );
 
@@ -60,17 +61,30 @@ const LivestreamsForYou = () => {
       if (isLoadMore && lastDocRef.current) {
         q = query(
           collection(db, "streams"),
-          orderBy("createdAt", "desc"),
           startAfter(lastDocRef.current),
           limit(STREAMS_PER_PAGE)
         );
       }
 
       const querySnapshot = await getDocs(q);
-      const newStreams = querySnapshot.docs.map(doc => ({
+      console.log("📊 Query completed:", {
+        docsCount: querySnapshot.docs.length,
+        isEmpty: querySnapshot.empty
+      });
+      
+      let newStreams = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as StreamData[];
+
+      // Sort on client side to avoid Firestore index conflicts
+      newStreams = newStreams.sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA;
+      });
+
+      console.log("✅ Streams fetched:", newStreams.length, newStreams);
 
       if (isLoadMore) {
         // Prevent duplicates by filtering out streams that already exist
@@ -159,6 +173,7 @@ const LivestreamsForYou = () => {
             </Button>
           </div>
         </div>
+
         <div className="flex items-center justify-center py-20">
           <div className="text-white text-lg">Loading streams...</div>
         </div>
@@ -190,18 +205,15 @@ const LivestreamsForYou = () => {
       </div>
     );
   }
+
   return (
     <div className="flex flex-col space-y-4 pb-10">
       <div className="flex md:flex-row flex-col md:space-y-0 space-y-5 items-center justify-between">
-        <h2 className="md:text-2xl text-xl font-medium">
-          Livestreams For You{" "}
-        </h2>
+        <h2 className="md:text-2xl text-xl font-medium">Livestreams For You</h2>
         <div className="flex items-center">
-          <Link to="/browse">
-            <Button variant="link" className="hover:no-underline">
-              View all
-            </Button>
-          </Link>
+          <Button variant="link" className="hover:no-underline">
+            View all
+          </Button>
           <Button className="bg-[#3A3A3A] text-[#FAFAFAB2] rounded-[20px] h-10 !px-4">
             <Filter />
             Filter
@@ -211,8 +223,8 @@ const LivestreamsForYou = () => {
 
       <div className="grid md:grid-cols-4 grid-cols-1 gap-x-5 gap-y-8">
         {streams.map((stream) => (
-          <LivestreamCard 
-            key={stream.id} 
+          <LivestreamCard
+            key={stream.id}
             stream={stream}
           />
         ))}
@@ -236,19 +248,6 @@ const LivestreamsForYou = () => {
       {streams.length === 0 && !loading && (
         <div className="flex items-center justify-center py-20">
           <div className="text-gray-400 text-lg">No streams found</div>
-        </div>
-      )}
-
-      {/* Manual load more button (fallback) */}
-      {hasMore && !loadingMore && streams.length > 0 && (
-        <div className="flex items-center justify-center py-8">
-          <Button 
-            onClick={loadMore}
-            variant="outline"
-            className="text-white border-gray-600 hover:bg-gray-800"
-          >
-            Load More Streams
-          </Button>
         </div>
       )}
     </div>

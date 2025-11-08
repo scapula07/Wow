@@ -62,6 +62,8 @@ const VodStream = () => {
   const [playerSrc, setPlayerSrc] = useState<Src[] | null>(null);
   const [playbackType, setPlaybackType] = useState<'live' | 'recorded' | null>(null);
   const [recordingSession, setRecordingSession] = useState<StreamSession | null>(null);
+  const [allSessions, setAllSessions] = useState<StreamSession[]>([]);
+  const [selectedSessionIndex, setSelectedSessionIndex] = useState(0);
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -109,11 +111,15 @@ const VodStream = () => {
           // Stream is offline, try to get recorded sessions
           console.log("Stream is offline, checking for recorded sessions");
           
-          if (!data.parentId) {
-            throw new Error('No parentId available for recorded playback');
+          // Use parentId if available, otherwise fall back to livepeerStreamId
+          const streamId = data.parentId || data.livepeerStreamId;
+          
+          if (!streamId) {
+            throw new Error('No parentId or livepeerStreamId available for recorded playback');
           }
 
-          const sessionsResult = await livepeerClient.getStreamSessions(data.parentId);
+          console.log("Fetching sessions for stream ID:", streamId);
+          const sessionsResult = await livepeerClient.getStreamSessions(streamId);
           
           if (!sessionsResult.success) {
             throw new Error(sessionsResult.error || 'Failed to get recorded sessions');
@@ -139,7 +145,13 @@ const VodStream = () => {
           }
 
           // Sort by creation date (most recent first)
-          const latestSession = completedSessions.sort((a, b) => b.createdAt - a.createdAt)[0];
+          const sortedSessions = completedSessions.sort((a, b) => b.createdAt - a.createdAt);
+          
+          // Store all sessions for playlist
+          setAllSessions(sortedSessions);
+          
+          // Load the first session (most recent)
+          const latestSession = sortedSessions[0];
           
           const recordUrl = latestSession.mp4Url || latestSession.recordingUrl;
           
@@ -149,9 +161,11 @@ const VodStream = () => {
 
           console.log("Using recorded session:", latestSession);
           console.log("Recording URL:", recordUrl);
+          console.log(`Total sessions available: ${sortedSessions.length}`);
 
           setPlaybackType('recorded');
           setRecordingSession(latestSession);
+          setSelectedSessionIndex(0);
           const playerSource = createVideoPlayerSrc(recordUrl);
           setPlayerSrc(playerSource);
           console.log("Generated recorded player source:", playerSource);
@@ -164,6 +178,33 @@ const VodStream = () => {
 
     fetchStreamData();
   }, [id]);
+
+  // Format duration from seconds to readable time
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Handle session selection
+  const handleSessionSelect = (index: number) => {
+    const session = allSessions[index];
+    if (!session) return;
+
+    const recordUrl = session.mp4Url || session.recordingUrl;
+    if (!recordUrl) return;
+
+    console.log("Switching to session:", session);
+    setSelectedSessionIndex(index);
+    setRecordingSession(session);
+    const playerSource = createVideoPlayerSrc(recordUrl);
+    setPlayerSrc(playerSource);
+  };
 
   // Loading state
   if (loading) {
@@ -208,7 +249,10 @@ const VodStream = () => {
               </div>
 
               {playerSrc ? (
-                <PlayerWithControls src={playerSrc} />
+                <PlayerWithControls 
+                  src={playerSrc} 
+                  key={recordingSession?.id || streamData?.playbackId || 'player'}
+                />
               ) : (
                 <div className="w-full h-full bg-black/20 flex items-center justify-center rounded-[10px]">
                   <div className="text-center">
@@ -236,6 +280,56 @@ const VodStream = () => {
                 Stream ID: {streamData.id}
               </div>
             </div>
+
+            {/* Session Playlist - Only show for recorded content with multiple sessions */}
+            {playbackType === 'recorded' && allSessions.length > 1 && (
+              <div className="mt-4">
+                <h3 className="text-white font-semibold mb-3 text-sm">
+                  Previous Recordings ({allSessions.length})
+                </h3>
+                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                  {allSessions.map((session, index) => (
+                    <div
+                      key={session.id}
+                      onClick={() => handleSessionSelect(index)}
+                      className={`
+                        flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all
+                        ${selectedSessionIndex === index 
+                          ? 'bg-primary/20 border-l-4 border-primary' 
+                          : 'bg-[#232222] hover:bg-[#2a2a2a]'
+                        }
+                      `}
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          {selectedSessionIndex === index && (
+                            <span className="text-primary text-xs">▶</span>
+                          )}
+                          <p className="text-white text-sm font-medium">
+                            {new Date(session.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                        <div className="flex gap-3 mt-1 text-xs text-gray-400">
+                          <span>Duration: {formatDuration(session.sourceSegmentsDuration)}</span>
+                          {session.sourceSegments > 0 && (
+                            <span>• {session.sourceSegments} segments</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {index === 0 && <span className="text-primary font-semibold">Latest</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <StreamUserDetails streamData={streamData} />
         </div>

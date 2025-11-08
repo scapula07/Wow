@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store';
 
 export const useAuth = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
-  
+  console.log(user,"user")
   return {
     user,
     isAuthenticated,

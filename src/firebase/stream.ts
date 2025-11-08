@@ -48,7 +48,7 @@ export const streamApi = {
             
             // Create stream document with Livepeer data
             const streamDoc = {
-                id: streamId,
+                id:livepeerResult.data!.id,
                 creatorId: streamData.creatorId,
                 streamName: streamData.streamName,
                 streamThumbnail: thumbnailUrl,
@@ -57,7 +57,8 @@ export const streamApi = {
                 playbackId: livepeerResult.data!.playbackId,
                 streamKey: livepeerResult.data!.streamKey,
                 livepeerStreamId: livepeerResult.data!.id,
-                parentId: livepeerResult.data!.parentId,
+                // Use parentId if available, otherwise use the stream ID itself
+                parentId: livepeerResult.data!.parentId || '',
                 isActive: livepeerResult.data!.isActive,
                 // Additional metadata
                 createdAt: new Date().toISOString(),
@@ -66,12 +67,12 @@ export const streamApi = {
             };
 
             // Save to Firestore
-            await setDoc(doc(db, "streams", streamId), streamDoc);
+            await setDoc(doc(db, "streams", livepeerResult.data!.id), streamDoc);
 
             return { 
                 success: true, 
                 message: "Stream created successfully",
-                streamId,
+                streamId:livepeerResult.data!.id,
                 data: streamDoc,
                 livepeerData: livepeerResult.data
             };

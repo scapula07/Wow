@@ -7,24 +7,29 @@ import { useNavigate } from "react-router-dom";
 import useDisclosure from "@/lib/hooks/use-disclosure";
 import { toast } from "sonner";
 import CreateStream from "./dialogs/create-stream";
+import type { StreamData } from "../types/stream.types";
 
-const NormalStream = () => {
-  const { streamDetails } = useStream();
+interface NormalStreamProps {
+  streamData?: StreamData | null;
+}
+
+const NormalStream = ({ streamDetails }: any) => {
+  // const { streamDetails } = useStream();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const navigate = useNavigate();
 
   const handleStart = () => {
-    if (streamDetails.streamId) {
+    if (streamDetails?.id) {
       // Navigate to live stream page with the actual stream ID
-      navigate(`/streams/${streamDetails.streamId}/live`);
+      navigate(`/streams/${streamDetails?.id}/live`);
     } else {
       toast.error("Stream data not available. Please try again.");
       onOpen();
     }
   };
-
+ console.log("🚀 NormalStream streamDetails:", streamDetails);
   return (
     <div className="mt-5 xl:w-[672px] md:w-[500px] w-[96vh] mx-auto">
       <div className="flex flex-col space-y-6 bg-[#232222] w-full p-10 rounded-[10px]">
@@ -33,7 +38,7 @@ const NormalStream = () => {
         <div className="flex flex-col space-y-3">
           <label className="text-base text-[#FAFAFA]">Stream Name</label>
           <Input
-            value={streamDetails.name}
+            value={streamDetails?.streamName}
             placeholder="Give your stream a name"
             className="h-14 rounded-[8px] !border-[#383A3F] placeholder:text-[#FAFAFAB2] w-full"
             readOnly

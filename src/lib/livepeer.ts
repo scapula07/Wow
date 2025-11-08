@@ -253,6 +253,26 @@ export const livepeerClient = {
         error: error.response?.data?.message || error.message || 'Failed to get stream sessions'
       };
     }
+  },
+
+  /**
+   * Get total viewership for a playback
+   */
+  getViewership: async (playbackId: string): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+      const response = await livepeerApi.get(`/data/views/query/total/${playbackId}`);
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      console.error('Livepeer getViewership error:', error);
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message || 'Failed to get viewership data'
+      };
+    }
   }
 };
 
