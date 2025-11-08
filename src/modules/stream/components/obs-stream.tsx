@@ -34,31 +34,31 @@ const ObsStream = ({ streamDetails }: any) => {
   };
 
   return (
-    <div className="flex flex-col space-y-10 mt-5 xl:w-[1000px] md:w-[500px] w-full mx-auto">
-      <div className="flex flex-col items-center justify-center bg-[#232222] h-[550px] w-full">
-        <p className="text-xl font-semibold">
+    <div className="flex flex-col space-y-6 sm:space-y-10 mt-3 sm:mt-5 w-full max-w-full sm:max-w-[500px] md:max-w-[600px] xl:max-w-[1000px] mx-auto px-2 sm:px-0">
+      <div className="flex flex-col items-center justify-center bg-[#232222] h-[300px] sm:h-[400px] md:h-[550px] w-full rounded-[10px]">
+        <p className="text-base sm:text-lg md:text-xl font-semibold text-center px-4">
           Connect streaming software to go live
         </p>
       </div>
 
-      <div className="flex flex-col space-y-5">
-        <h3 className="text-2xl font-semibold">Stream details</h3>
+      <div className="flex flex-col space-y-4 sm:space-y-5">
+        <h3 className="text-xl sm:text-2xl font-semibold">Stream details</h3>
 
-        <div className="flex flex-col space-y-5">
-          <div className="flex flex-col space-y-3">
-            <label className="text-base text-[#FAFAFA]">Stream Name</label>
+        <div className="flex flex-col space-y-4 sm:space-y-5">
+          <div className="flex flex-col space-y-2 sm:space-y-3">
+            <label className="text-sm sm:text-base text-[#FAFAFA]">Stream Name</label>
 
             <Input
               value={streamDetails?.streamName}
               placeholder="Give your stream a name"
-              className="h-12 rounded-[8px] !border-[#383A3F] placeholder:text-[#FAFAFAB2] w-md"
+              className="h-12 rounded-[8px] !border-[#383A3F] placeholder:text-[#FAFAFAB2] md:w-md w-full"
             />
           </div>
 
-          <div className="flex flex-col space-y-3">
-            <label className="text-base text-[#FAFAFA]">Stream Key</label>
+          <div className="flex flex-col space-y-2 sm:space-y-3">
+            <label className="text-sm sm:text-base text-[#FAFAFA]">Stream Key</label>
 
-            <div className="flex items space-x-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
               <div className="relative md:w-md w-full">
                 <Input
                   type={showKey ? "text" : "password"}
@@ -82,32 +82,32 @@ const ObsStream = ({ streamDetails }: any) => {
                 )}
               </div>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Button
-                  className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 "
+                  className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 flex-1 sm:flex-none text-xs sm:text-sm"
                   size="sm"
                 >
-                  <RotateCcw />
+                  <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
                   Reset
                 </Button>
                 <Button
-                  className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 "
+                  className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 flex-1 sm:flex-none text-xs sm:text-sm"
                   size="sm"
                   onClick={handleCopyStreamKey}
                   disabled={!streamDetails?.streamKey}
                 >
-                  <Copy size={14} />
+                  <Copy size={14} className="w-3 h-3 sm:w-4 sm:h-4" />
                   Copy
                 </Button>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col space-y-3 pb-20">
-            <label className="text-base text-[#FAFAFA]">Stream URL</label>
+          <div className="flex flex-col space-y-2 sm:space-y-3 pb-10 sm:pb-20">
+            <label className="text-sm sm:text-base text-[#FAFAFA]">Stream URL</label>
 
-            <div className="flex items space-x-6 items-center">
-              <div className="relative w-full md:w-md">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
+              <div className="relative md:w-md w-full">
                 <Input
                   type={showURL ? "text" : "password"}
                   value={rtmpUrl}
@@ -131,11 +131,11 @@ const ObsStream = ({ streamDetails }: any) => {
               </div>
 
               <Button
-                className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 "
+                className="bg-[#302F2F] border border-[#FAFAFA] rounded-[5px] h-fit py-1 text-xs sm:text-sm w-full sm:w-auto"
                 size="sm"
                 onClick={handleCopyRtmpUrl}
               >
-                <Copy size={14} />
+                <Copy size={14} className="w-3 h-3 sm:w-4 sm:h-4" />
                 Copy
               </Button>
             </div>

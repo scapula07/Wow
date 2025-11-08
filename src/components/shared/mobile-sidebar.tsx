@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { Heart, Home, LayoutGrid, Video, X } from "lucide-react";
+import { Heart, Home, LayoutGrid, LogOut, Video, X } from "lucide-react";
 import SidebarItem from "../sidebar-item";
 import { useLocation } from "react-router";
 import { useEffect, useRef } from "react";
+import { useAuth } from "@/lib/hooks/use-auth";
 
 type Props = {
   expanded: boolean;
@@ -12,8 +13,17 @@ type Props = {
 
 const MobileSidebar = ({ expanded, setExpanded }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { user, isLoggedIn, logout } = useAuth();
 
   const { pathname } = useLocation();
+
+  const getDisplayName = () => {
+    if (user?.displayName) return user.displayName;
+    if (user?.firstName && user?.lastName) return `${user.firstName} ${user.lastName}`;
+    if (user?.firstName) return user.firstName;
+    if (user?.email) return user.email.split('@')[0];
+    return "Unknown User";
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -38,11 +48,25 @@ const MobileSidebar = ({ expanded, setExpanded }: Props) => {
     >
       <div className="flex flex-col space-y-12">
         <div className="flex items-center justify-between">
-          <img
-            src="/assets/images/user.jpeg"
-            alt="profile"
-            className="w-10 h-10 rounded-full"
-          />
+          {isLoggedIn && user ? (
+            <div className="flex items-center gap-2">
+              <img
+                src={user.profilePictureUrl || "/assets/images/user.jpeg"}
+                alt="profile"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">{getDisplayName()}</span>
+                <span className="text-xs text-gray-400">{user.email}</span>
+              </div>
+            </div>
+          ) : (
+            <img
+              src="/assets/images/user.jpeg"
+              alt="profile"
+              className="w-10 h-10 rounded-full"
+            />
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -92,9 +116,19 @@ const MobileSidebar = ({ expanded, setExpanded }: Props) => {
         Go Live
       </Button>
 
-      <Button className="bg-[#3A3A3A] rounded-[20px] w-full text-sm font-semibold py-5 mt-5">
-        Log In
-      </Button>
+      {isLoggedIn ? (
+        <Button 
+          onClick={logout}
+          className="bg-[#3A3A3A] hover:bg-[#4A4A4A] rounded-[20px] w-full text-sm font-semibold py-5 mt-5 flex items-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Log Out
+        </Button>
+      ) : (
+        <Button className="bg-[#3A3A3A] rounded-[20px] w-full text-sm font-semibold py-5 mt-5">
+          Log In
+        </Button>
+      )}
     </aside>
   );
 };

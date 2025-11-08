@@ -7,7 +7,7 @@ import { db } from "@/firebase/config";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import ProfileVideoTab from "@/modules/user/components/profile-video-tab";
+
 import ProfileLivestreamTab from "@/modules/user/components/profile-livestream-tab";
 
 const sampleText =
@@ -190,10 +190,10 @@ const Profile = () => {
   }
 
   return (
-    <div id={id} className="mt-12 flex flex-col space-y-10">
+    <div id={id} className="mt-6 sm:mt-12 flex flex-col space-y-6 sm:space-y-10 px-2 sm:px-4 md:px-0">
       {/* Cover Image Section */}
       {user.coverImageURL && (
-        <div className="w-full h-48 rounded-lg overflow-hidden relative">
+        <div className="w-full h-32 sm:h-48 rounded-lg overflow-hidden relative">
           <img
             src={user.coverImageURL}
             alt="Cover"
@@ -202,19 +202,19 @@ const Profile = () => {
         </div>
       )}
       
-      <div className="flex items-center space-x-7">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-7">
         <img
           src={user.photoURL || "/assets/images/wow-live-sample.jpg"}
           alt="profile-pics"
-          className="md:w-1/4 w-full h-[250px] max-h-[250px] rounded-[10px] object-cover shadow transition-all duration-500 ease-in-out"
+          className="w-full sm:w-1/3 md:w-1/4 h-[200px] sm:h-[250px] max-h-[250px] rounded-[10px] object-cover shadow transition-all duration-500 ease-in-out"
         />
 
-        <div className="flex flex-col space-y-5 max-w-[61%]">
-          <h1 className="font-bold text-[40px] leading-12">
+        <div className="flex flex-col space-y-3 sm:space-y-5 w-full sm:max-w-[61%]">
+          <h1 className="font-bold text-2xl sm:text-3xl md:text-[40px] leading-tight sm:leading-12">
             {getDisplayName()}
           </h1>
 
-          <p className="text-2xl font-medium">
+          <p className="text-base sm:text-xl md:text-2xl font-medium">
             147k <span className="text-[#FFFFFFB2]">viewers</span>{" "}
             <span className="text-xs mx-1 relative bottom-0.5">●</span>{" "}
             {followerCount.toLocaleString()}{" "}
@@ -222,7 +222,7 @@ const Profile = () => {
           </p>
 
           <div
-            className="font-medium text-base !transition-all !duration-500 !ease-in-out overflow-hidden"
+            className="font-medium text-sm sm:text-base !transition-all !duration-500 !ease-in-out overflow-hidden"
             style={{
               maxHeight: expandText ? "500px" : "50px",
             }}
@@ -246,7 +246,7 @@ const Profile = () => {
 
           {!isOwnProfile && currentUser && (
             <Button 
-              className={`font-semibold w-fit px-12 mt-3 rounded-[5px] ${
+              className={`font-semibold w-full sm:w-fit px-8 sm:px-12 mt-3 rounded-[5px] text-sm sm:text-base ${
                 isFollowing 
                   ? "bg-gray-600 text-white hover:bg-gray-700" 
                   : "text-[#141414]"
@@ -265,7 +265,7 @@ const Profile = () => {
 
           {!isOwnProfile && !currentUser && (
             <Button 
-              className="text-[#141414] font-semibold w-fit px-12 mt-3 rounded-[5px]"
+              className="text-[#141414] font-semibold w-full sm:w-fit px-8 sm:px-12 mt-3 rounded-[5px] text-sm sm:text-base"
               onClick={() => toast.error("Please log in to follow users")}
             >
               Follow
@@ -274,7 +274,7 @@ const Profile = () => {
 
           {isOwnProfile && (
             <Button 
-              className="text-[#141414] font-semibold w-fit px-12 mt-3 rounded-[5px]"
+              className="text-[#141414] font-semibold w-full sm:w-fit px-8 sm:px-12 mt-3 rounded-[5px] text-sm sm:text-base"
               onClick={() => navigate(`/user/${id}/update`)}
             >
               Edit Profile
@@ -284,12 +284,12 @@ const Profile = () => {
       </div>
 
       <Tabs className="w-full" defaultValue="livestreams">
-        <TabsList className="w-fit bg-inherit items-center text-white h-fit mb-5">
+        <TabsList className="w-full sm:w-fit bg-inherit items-center text-white h-fit mb-5">
           {["livestreams", "videos"].map((tab, index) => (
             <TabsTrigger
               key={index}
               value={tab}
-              className="data-[state=active]:bg-primary bg-[#141414] rounded-[5px] h-10 px-20 cursor-pointer text-white capitalize"
+              className="data-[state=active]:bg-primary bg-[#141414] rounded-[5px] h-10 flex-1 sm:flex-none sm:px-20 cursor-pointer text-white capitalize text-sm sm:text-base"
               onClick={() => {
                 if (tab === "videos") {
                   toast.info("Video feature coming soon!");

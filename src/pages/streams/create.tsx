@@ -92,30 +92,30 @@ const CreateStream = () => {
   ];
 
   return (
-    <div className="flex flex-col space-y-5 mt-7">
+    <div className="flex flex-col space-y-3 sm:space-y-5 mt-4 sm:mt-7 px-2 sm:px-4 md:px-0">
       <div className="flex items-center relative">
         <Button
           variant="link"
-          className="underline absolute text-white text-xs top-0 left-0"
+          className="hidden sm:inline-flex underline absolute text-white text-sm top-0 left-0 px-2"
           onClick={() => navigate(`/`)}
         >
-          <MoveLeft />
-          Back
+          <MoveLeft className="w-4 h-4" />
+          <span className="ml-1">Back</span>
         </Button>
 
         <Tabs className="w-full" defaultValue="0">
           <div className="w-full flex items-center justify-center">
-            <TabsList className="w-fit bg-inherit items-center text-white h-fit">
+            <TabsList className="w-fit bg-inherit items-center text-white h-fit gap-2 sm:gap-0">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id.toString()}
-                  className="data-[state=active]:bg-primary rounded-[5px] h-10 !w-32 cursor-pointer"
+                  className="data-[state=active]:bg-primary rounded-[5px] h-8 sm:h-10 !w-24 sm:!w-32 cursor-pointer"
                 >
                   <img
                     src={tab.icon}
                     alt="tab-icon"
-                    className="w-[24px] h-[26px]"
+                    className="w-[18px] h-[20px] sm:w-[24px] sm:h-[26px]"
                   />
                 </TabsTrigger>
               ))}

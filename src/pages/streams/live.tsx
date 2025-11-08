@@ -69,17 +69,19 @@ const LiveStream = () => {
   }
 
   return (
-    <div className="flex space-x-6 px-4 py-5">
-      <div className="flex flex-col space-y-12 w-full md:w-2/3">
-        <div className="flex flex-col space-y-1">
-          <div className="w-full h-[400px] rounded-[10px] overflow-hidden">
+    <div className="flex flex-col lg:flex-row lg:space-x-6 px-0 sm:px-4 py-0 sm:py-5 space-y-0 lg:space-y-0">
+      <div className="flex flex-col space-y-0 sm:space-y-12 w-full lg:w-2/3">
+        <div className="flex flex-col space-y-0 sm:space-y-1">
+          <div className="w-full  rounded-none sm:rounded-[10px] overflow-hidden relative">
             <BroadcastWithControls streamKey={streamData.streamKey} />
           </div>
         </div>
-        <StreamUserDetails streamData={streamData} />
+        <div className="px-2 sm:px-0 mt-3 sm:mt-0">
+          <StreamUserDetails streamData={streamData} />
+        </div>
       </div>
 
-      <div className="w-1/3">
+      <div className="w-full lg:w-1/3 px-2 sm:px-0 mt-6 lg:mt-0">
         <StreamChat streamId={streamData.id} />
       </div>
     </div>

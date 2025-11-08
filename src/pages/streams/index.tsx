@@ -231,10 +231,10 @@ const VodStream = () => {
   console.log("Stream src:", playerSrc);
   return (
     <>
-      <div className="flex space-x-6 px-4 py-5">
-        <div className="flex flex-col space-y-12 w-full md:w-2/3">
-          <div className="flex flex-col space-y-1">
-            <div className="w-full h-[400px] rounded-[10px] overflow-hidden relative">
+      <div className="flex flex-col lg:flex-row lg:space-x-6 px-0 sm:px-4 py-0 sm:py-5 space-y-0 lg:space-y-0">
+        <div className="flex flex-col space-y-0 sm:space-y-12 w-full lg:w-2/3">
+          <div className="flex flex-col space-y-0 sm:space-y-1">
+            <div className="w-full h-[250px] sm:h-[350px] md:h-[400px] rounded-none sm:rounded-[10px] overflow-hidden relative">
               {/* Live/Recorded indicator */}
               <div className="absolute top-4 left-4 z-10">
                 {playbackType === 'live' ? (
@@ -254,58 +254,50 @@ const VodStream = () => {
                   key={recordingSession?.id || streamData?.playbackId || 'player'}
                 />
               ) : (
-                <div className="w-full h-full bg-black/20 flex items-center justify-center rounded-[10px]">
-                  <div className="text-center">
-                    <div className="text-white text-lg mb-2">Loading player...</div>
-                    <div className="text-gray-400 text-sm">
-                      {streamData?.playbackId ? 
-                        `Playback ID: ${streamData.playbackId}` : 
-                        "No playback ID available"
-                      }
-                    </div>
-                  </div>
+                <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                  <p className="text-white">No playback source available</p>
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-between px-2 py-1 bg-[#232222] rounded-[5px]">
-              <div className="text-white text-sm">
-                <span className="font-medium">{streamData.streamName}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 px-2 sm:px-2 py-2 sm:py-1 bg-[#232222] rounded-none sm:rounded-[5px] mt-0 sm:mt-1">
+              <div className="text-white text-xs sm:text-sm">
+                <span className="font-medium line-clamp-1">{streamData.streamName}</span>
                 {playbackType === 'recorded' && recordingSession && (
-                  <span className="text-gray-400 text-xs ml-2">
+                  <span className="text-gray-400 text-xs ml-0 sm:ml-2 block sm:inline">
                     • Recorded {new Date(recordingSession.createdAt).toLocaleDateString()}
                   </span>
                 )}
               </div>
-              <div className="text-gray-400 text-xs">
+              <div className="text-gray-400 text-[10px] sm:text-xs truncate">
                 Stream ID: {streamData.id}
               </div>
             </div>
 
             {/* Session Playlist - Only show for recorded content with multiple sessions */}
             {playbackType === 'recorded' && allSessions.length > 1 && (
-              <div className="mt-4">
-                <h3 className="text-white font-semibold mb-3 text-sm">
+              <div className="mt-3 sm:mt-4 px-2 sm:px-0">
+                <h3 className="text-white font-semibold mb-2 sm:mb-3 text-xs sm:text-sm">
                   Previous Recordings ({allSessions.length})
                 </h3>
-                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                <div className="space-y-2 max-h-[180px] sm:max-h-[200px] overflow-y-auto">
                   {allSessions.map((session, index) => (
                     <div
                       key={session.id}
                       onClick={() => handleSessionSelect(index)}
                       className={`
-                        flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all
+                        flex items-center justify-between p-2 sm:p-3 rounded-lg cursor-pointer transition-all
                         ${selectedSessionIndex === index 
-                          ? 'bg-primary/20 border-l-4 border-primary' 
+                          ? 'bg-primary/20 border-l-2 sm:border-l-4 border-primary' 
                           : 'bg-[#232222] hover:bg-[#2a2a2a]'
                         }
                       `}
                     >
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           {selectedSessionIndex === index && (
                             <span className="text-primary text-xs">▶</span>
                           )}
-                          <p className="text-white text-sm font-medium">
+                          <p className="text-white text-xs sm:text-sm font-medium truncate">
                             {new Date(session.createdAt).toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
@@ -315,14 +307,14 @@ const VodStream = () => {
                             })}
                           </p>
                         </div>
-                        <div className="flex gap-3 mt-1 text-xs text-gray-400">
+                        <div className="flex flex-wrap gap-2 sm:gap-3 mt-1 text-[10px] sm:text-xs text-gray-400">
                           <span>Duration: {formatDuration(session.sourceSegmentsDuration)}</span>
                           {session.sourceSegments > 0 && (
                             <span>• {session.sourceSegments} segments</span>
                           )}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-[10px] sm:text-xs text-gray-500 ml-2">
                         {index === 0 && <span className="text-primary font-semibold">Latest</span>}
                       </div>
                     </div>
@@ -331,10 +323,12 @@ const VodStream = () => {
               </div>
             )}
           </div>
-          <StreamUserDetails streamData={streamData} />
+          <div className="px-2 sm:px-0 mt-6 sm:mt-0">
+            <StreamUserDetails streamData={streamData} />
+          </div>
         </div>
 
-        <div className="w-1/3">
+        <div className="w-full lg:w-1/3 px-2 sm:px-0 mt-6 lg:mt-0">
           <StreamChat streamId={streamData.id} />
         </div>
       </div>
