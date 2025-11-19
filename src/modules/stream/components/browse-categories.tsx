@@ -12,29 +12,27 @@ type Props = {
 
 const BrowseCategories = ({ following }: Props) => {
   const [categories, setCategories] = useState<CategoryData[]>(LIVESTREAM_CATEGORIES);
-  const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     const fetchCategoryCounts = async () => {
       try {
         const counts = await categoryCountCache.getCounts();
-        
+
         // Update categories with real counts from database
         const updatedCategories = LIVESTREAM_CATEGORIES.map(category => ({
           ...category,
           streamCount: counts[category.id] || 0
         }));
-        
+
         // Sort by stream count (highest to lowest)
         const sortedCategories = updatedCategories.sort((a, b) => 
           (b.streamCount || 0) - (a.streamCount || 0)
         );
-        
+
         setCategories(sortedCategories);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching category counts:", error);
-        setLoading(false);
       }
     };
 

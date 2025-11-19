@@ -3,12 +3,7 @@ import { Input } from "@/components/ui/input";
 import { copyToClipboard } from "@/lib/utils";
 import { Copy, Eye, EyeOff, RotateCcw } from "lucide-react";
 import { useState } from "react";
-import type { StreamData } from "../types/stream.types";
 import { toast } from "sonner";
-
-interface ObsStreamProps {
-  streamData?: StreamData | null;
-}
 
 const ObsStream = ({ streamDetails }: any) => {
   const [showKey, setShowKey] = useState(false);

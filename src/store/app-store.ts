@@ -17,7 +17,7 @@ interface AppActions {
 
 type AppStore = AppState & AppActions;
 
-export const useAppStore = create<AppStore>()((set, get) => ({
+export const useAppStore = create<AppStore>()((set) => ({
   // State
   isCreateStreamOpen: false,
   searchQuery: '',

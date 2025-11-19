@@ -100,37 +100,7 @@ interface LivepeerStream {
   userTags: Record<string, any>;
 }
 
-// Default stream profiles for different quality levels
-const DEFAULT_PROFILES: Record<string, StreamProfile> = {
-  "0": {
-    name: "240p0",
-    fps: 0,
-    bitrate: 250000,
-    width: 426,
-    height: 240
-  },
-  "1": {
-    name: "360p0",
-    fps: 0,
-    bitrate: 800000,
-    width: 640,
-    height: 360
-  },
-  "2": {
-    name: "480p0",
-    fps: 0,
-    bitrate: 1600000,
-    width: 854,
-    height: 480
-  },
-  "3": {
-    name: "720p0",
-    fps: 0,
-    bitrate: 3000000,
-    width: 1280,
-    height: 720
-  }
-};
+// (Default profiles removed — keep StreamProfile type exported for reuse.)
 
 export const livepeerClient = {
   /**

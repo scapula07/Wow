@@ -1,7 +1,6 @@
 import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Avatar } from "@radix-ui/react-avatar";
-import { Send } from "lucide-react";
 import {
   useEffect,
   useRef,
@@ -42,7 +41,7 @@ const StreamChat = ({ streamId }: StreamChatProps) => {
   const [input, setInput] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
+  
   const [user, setUser] = useState<User | null>(null);
 
   const chatRef = useRef<HTMLDivElement>(null);
@@ -111,7 +110,7 @@ const StreamChat = ({ streamId }: StreamChatProps) => {
       return;
     }
 
-    setSending(true);
+    
 
     try {
       const messageData = {
@@ -129,7 +128,7 @@ const StreamChat = ({ streamId }: StreamChatProps) => {
       console.error("Error sending message:", error);
       toast.error("Failed to send message");
     } finally {
-      setSending(false);
+      // completed
     }
   };
 

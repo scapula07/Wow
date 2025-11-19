@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input";
-import { useStream } from "../hooks/useStream";
 import { RadioGroup } from "@radix-ui/react-radio-group";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
@@ -7,11 +6,6 @@ import { useNavigate } from "react-router-dom";
 import useDisclosure from "@/lib/hooks/use-disclosure";
 import { toast } from "sonner";
 import CreateStream from "./dialogs/create-stream";
-import type { StreamData } from "../types/stream.types";
-
-interface NormalStreamProps {
-  streamData?: StreamData | null;
-}
 
 const NormalStream = ({ streamDetails }: any) => {
   // const { streamDetails } = useStream();
