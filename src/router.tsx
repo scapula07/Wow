@@ -4,6 +4,7 @@ import { Suspense, Fragment, lazy } from "react";
 import ErrorBoundary from "./components/shared/error-boundary";
 import AuthLayout from "./components/layouts/auth-layout";
 import { Toaster } from "./components/ui/sonner";
+import DashboardLayout from "./components/layouts/dashboard-layout";
 
 interface RouteConfig {
   path: string;
@@ -21,11 +22,26 @@ const ForgotPassword = lazy(() => import("./pages/auth/forgot-password"));
 const ResetPassword = lazy(() => import("./pages/auth/reset-password"));
 const VerifyOTP = lazy(() => import("./pages/auth/verify-otp"));
 
+// Stream
+const CreateStream = lazy(() => import("./pages/streams/create"));
+const LiveStream = lazy(() => import("./pages/streams/live"));
+const VodStream = lazy(() => import("./pages/streams/index"));
+const BrowseStreams = lazy(() => import("./pages/browse"));
+const Following = lazy(() => import("./pages/following"));
+
+// User
+const UserProfile = lazy(() => import("./pages/user/profile"));
+const UserProfileUpdate = lazy(() => import("./pages/user/update"));
+
+
 const routes: RouteConfig[] = [
   {
     path: "/",
     page: Home,
+    layout: DashboardLayout,
   },
+
+  // Auth
   {
     path: "/auth/login",
     page: Login,
@@ -50,6 +66,49 @@ const routes: RouteConfig[] = [
     path: "/auth/verify-otp",
     page: VerifyOTP,
     layout: AuthLayout,
+  },
+
+  // Stream
+  {
+    path: "/streams/:id/create",
+    page: CreateStream,
+    layout: DashboardLayout,
+  },
+  {
+    path: "/streams/:id/live",
+    page: LiveStream,
+    layout: DashboardLayout,
+  },
+    {
+    path: "/streams/:id",
+    page: VodStream,
+    layout: DashboardLayout,
+  },
+
+  // Browse Livstreams
+  {
+    path: "/browse",
+    page: BrowseStreams,
+    layout: DashboardLayout,
+  },
+
+  // Following
+  {
+    path: "/following",
+    page: Following,
+    layout: DashboardLayout,
+  },
+
+  // User
+  {
+    path: "/user/:id/profile",
+    page: UserProfile,
+    layout: DashboardLayout,
+  },
+    {
+    path: "/user/:id/update",
+    page: UserProfileUpdate,
+    layout: DashboardLayout,
   },
 ];
 

@@ -11,7 +11,7 @@ const PasswordUpdateSuccess = () => {
         PASSWORD UPDATED
       </h3>
       <img
-        src="/src/assets/icons/wow-check.svg"
+        src="assets/icons/wow-check.svg"
         className="w-[120px] h-[120px] block mx-auto"
         alt="Success"
       />

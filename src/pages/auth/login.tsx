@@ -16,15 +16,18 @@ import {
   loginSchema,
 } from "@/modules/auth/schema/login.schema";
 import ErrorAlert from "@/components/alerts/error-alert";
-import { Link } from "react-router";
+import { Link,useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import GoogleAuth from "@/modules/auth/components/google-auth";
 import { VStack } from "@/components/ui/stack";
+import { authApi } from "@/firebase/auth";
+import { useAuthStore } from "@/store";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [errorResponse, setErrorResponse] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login, setError, error } = useAuthStore();
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -36,8 +39,28 @@ const Login = () => {
   // Call API to login
 
   const submit: SubmitHandler<LoginSchemaType> = async (data) => {
-    setErrorResponse(null);
-    console.log(data);
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await authApi.loginWithEmail(data.email, data.password);
+      if (!res.success) {
+        setError(res.error || "Login failed");
+      } else {
+        // Convert response to User type and login
+        const user = {
+          email: data.email,
+          onboarded: (res as any).userData?.onboarded || false,
+          ...(res as any).userData,
+          ...(res as any).user
+        };
+        login(user);
+        navigate("/");
+      }
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,7 +74,7 @@ const Login = () => {
         </p>
       </VStack>
 
-      {errorResponse && <ErrorAlert message={errorResponse} />}
+      {error && <ErrorAlert message={error} />}
 
       <Form {...form}>
         <form
@@ -117,8 +140,8 @@ const Login = () => {
             Forgot password?
           </Link>
 
-          <Button type="submit" className="w-full font-bold mt-4.5 h-14">
-            Login
+          <Button type="submit" className="w-full font-bold mt-4.5 h-14" disabled={loading}>
+            {loading ? "Processing..." : "Login"}
           </Button>
 
           <div className="flex flex-col space-y-1 mt-2">
@@ -128,7 +151,7 @@ const Login = () => {
               <hr className="w-full border-white" />
             </div>
 
-            <GoogleAuth />
+            <GoogleAuth text="Login with Google" />
 
             <p className="text-center mt-6 text-[#FAFAFA66]">
               Don&apos;t have an account?{" "}

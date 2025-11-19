@@ -12,7 +12,7 @@ import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import ErrorAlert from "@/components/alerts/error-alert";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import GoogleAuth from "@/modules/auth/components/google-auth";
 import { VStack } from "@/components/ui/stack";
@@ -20,10 +20,14 @@ import {
   SignupSchema,
   type SignupSchemaType,
 } from "@/modules/auth/schema/signup.schema";
+import { authApi } from "@/firebase/auth";
+import { useAuthStore } from "@/store";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [errorResponse, setErrorResponse] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { login, setError, error } = useAuthStore();
 
   const form = useForm<SignupSchemaType>({
     resolver: zodResolver(SignupSchema),
@@ -38,8 +42,27 @@ const Signup = () => {
   // Call API to signup
 
   const submit: SubmitHandler<SignupSchemaType> = async (data) => {
-    setErrorResponse(null);
-    console.log(data);
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await authApi.signupWithEmail(data.email, data.password);
+      if (!res.success) {
+        setError(res.error || "Signup failed");
+      } else {
+        // Convert response to User type and login
+        const user = {
+          email: data.email,
+          onboarded: false,
+          ...(res as any).user
+        };
+        login(user);
+        navigate("/");
+      }
+    } catch (err: any) {
+      setError(err.message || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,7 +76,7 @@ const Signup = () => {
         </p>
       </VStack>
 
-      {errorResponse && <ErrorAlert message={errorResponse} />}
+      {error && <ErrorAlert message={error} />}
 
       <Form {...form}>
         <form
@@ -81,7 +104,7 @@ const Signup = () => {
 
           <FormField
             control={form.control}
-            name="firstname"
+            name="lastname"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="mb-1 text-base">Last Name</FormLabel>
@@ -150,8 +173,8 @@ const Signup = () => {
             )}
           />
 
-          <Button type="submit" className="w-full font-bold mt-4.5 h-14">
-            Create Account
+          <Button type="submit" className="w-full font-bold mt-4.5 h-14" disabled={loading}>
+            {loading ? "Processing..." : "Create Account"}
           </Button>
 
           <div className="flex flex-col space-y-1 mt-2">
