@@ -13,7 +13,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "nodemailer": "^6.9.4",
     "@hookform/resolvers": "^5.2.1",
     "@livepeer/react": "^4.3.6",
     "@radix-ui/react-avatar": "^1.1.10",
