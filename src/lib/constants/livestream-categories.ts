@@ -8,159 +8,74 @@ export interface CategoryData {
 
 export const LIVESTREAM_CATEGORIES: CategoryData[] = [
   {
-    id: "space-theory",
-    name: "Space Theory & Cosmic Mysteries",
-    description: "Explore the unknown depths of space and cosmic phenomena",
-    image: "/assets/images/ufo1.jpg",
-    streamCount: 125
-  },
-  {
-    id: "live-watch",
-    name: "Live Watch & Analysis",
-    description: "Real-time observation and expert commentary",
-    image: "/assets/images/ufo2.jpg",
-    streamCount: 83
-  },
-  {
-    id: "ancient-aliens",
-    name: "History & Ancient Aliens",
-    description: "Uncover ancient mysteries and extraterrestrial connections",
-    image: "/assets/images/ufo3.jpg",
-    streamCount: 152
-  },
-  {
-    id: "alien-encounters",
-    name: "Aliens & Encounters",
-    description: "First contact stories and close encounters",
-    image: "/assets/images/ufo4.jpg",
-    streamCount: 98
-  },
-  {
-    id: "ufo-sightings",
-    name: "UFO Sightings & Evidence",
-    description: "Latest sightings, footage analysis, and investigations",
-    image: "/assets/images/ufo5.jpg",
-    streamCount: 114
-  },
-  {
-    id: "paranormal",
-    name: "Paranormal Phenomena",
-    description: "Unexplained events and supernatural investigations",
-    image: "/assets/images/ufo6.jpg",
-    streamCount: 76
-  },
-  {
-    id: "conspiracy",
-    name: "Conspiracy Theories",
-    description: "Deep dives into cover-ups and hidden truths",
-    image: "/assets/images/ufo1.jpg",
-    streamCount: 139
-  },
-  {
-    id: "astrobiology",
-    name: "Astrobiology & Life Beyond",
-    description: "The search for life in the universe",
-    image: "/assets/images/ufo2.jpg",
-    streamCount: 62
-  },
-  {
-    id: "nasa-space",
-    name: "NASA & Space Exploration",
-    description: "Official missions, launches, and space discoveries",
-    image: "/assets/images/ufo3.jpg",
-    streamCount: 187
-  },
-  {
-    id: "sci-fi-analysis",
-    name: "Sci-Fi Analysis & Theories",
-    description: "Breaking down science fiction and future possibilities",
-    image: "/assets/images/ufo4.jpg",
-    streamCount: 54
-  },
-  {
-    id: "cryptozoology",
-    name: "Cryptozoology & Unknown Creatures",
-    description: "Searching for legendary and undiscovered beings",
-    image: "/assets/images/ufo5.jpg",
-    streamCount: 48
-  },
-  {
-    id: "quantum-physics",
-    name: "Quantum Physics & Dimensions",
-    description: "Mind-bending theories about reality and the multiverse",
-    image: "/assets/images/ufo6.jpg",
-    streamCount: 71
-  }
-  ,
-  {
     id: "alien-abduction",
     name: "Alien Abduction",
-    description: "First-person accounts and investigations into alleged abduction experiences — medical, psychological, and cultural perspectives.",
+    description: "In-depth discussions and first-person accounts of alleged abductions — examining psychological, medical, and investigative perspectives.",
     image: "/assets/images/ufo1.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
     id: "grey-aliens",
     name: "Grey Aliens",
-    description: "Discussions focused on the iconic 'Grey' archetype: reported encounters, biology theories, and cultural impact.",
+    description: "Focused coverage on the 'Grey' archetype: reported encounters, appearance descriptions, and cultural influence across media.",
     image: "/assets/images/ufo2.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
-    id: "reptilian-aliens",
+    id: "reptilian-alien",
     name: "Reptilian Alien",
-    description: "Explorations of reptilian-type entities in folklore, conspiracy narratives, and eyewitness reports.",
+    description: "Explorations of reptilian-type entities in folklore and eyewitness reports, including origin theories and symbolic readings.",
     image: "/assets/images/ufo3.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
-    id: "nordic-aliens",
+    id: "nordic-alien",
     name: "Nordic Alien",
-    description: "Accounts and theories about 'Nordic' or humanoid extraterrestrials often described as benevolent and human-like.",
+    description: "Accounts and analyses of humanoid 'Nordic' entities often described as benevolent — myth, testimony, and hypotheses.",
     image: "/assets/images/ufo4.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
-    id: "mantid-aliens",
+    id: "mantid-alien",
     name: "Mantid Alien",
-    description: "Investigations into mantid or insectoid entities: reported encounters, symbolism, and hypotheses.",
+    description: "Investigations into mantid/insectoid entities: encounter narratives, symbolic interpretations, and scientific speculation.",
     image: "/assets/images/ufo5.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
     id: "government-disclosures",
     name: "Government Disclosures",
-    description: "News, leaks and official statements about UFOs and government investigations — transparency and policy discussions.",
+    description: "News, documents and expert analysis on official disclosures, declassified reports, and policy responses to unidentified phenomena.",
     image: "/assets/images/ufo6.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
-    id: "ufos-time-travel",
-    name: "UFOs & Time Travel",
-    description: "Speculative and evidence-led conversations connecting unidentified phenomena with time anomalies and temporal theories.",
+    id: "ufos-and-time-travel",
+    name: "UFOs and Time Travel",
+    description: "Speculative and evidence-based conversations linking unidentified phenomena with temporal anomalies, paradoxes, and time-based theories.",
     image: "/assets/images/ufo1.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
     id: "ufo-crashes",
     name: "UFO Crashes",
-    description: "Historical and contemporary discussions about alleged crash incidents, wreckage claims, and investigative follow-ups.",
+    description: "Historical investigations and contemporary claims about alleged crash incidents, wreckage evidence, and follow-up research.",
     image: "/assets/images/ufo2.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
-    id: "dmt-entities",
-    name: "DMT & Entities",
-    description: "First-person reports and research linking DMT experiences to encounter narratives and archetypal entities.",
+    id: "dmt-and-entities",
+    name: "DMT and Entities",
+    description: "First-person reports and interdisciplinary research exploring DMT experiences and their overlap with encounter narratives and archetypal beings.",
     image: "/assets/images/ufo3.jpg",
-    streamCount: 0
+    streamCount: 0,
   },
   {
     id: "bible-and-ufos",
-    name: "Bible & UFOs",
-    description: "Exploring interpretations of religious texts in light of UFO/encounter claims and theological perspectives.",
+    name: "Bible and UFOs",
+    description: "Scholarly and community discussions on religious texts, theological interpretations, and possible connections to unidentified phenomena.",
     image: "/assets/images/ufo4.jpg",
-    streamCount: 0
+    streamCount: 0,
   }
 ];
 
