@@ -101,7 +101,7 @@ const VodStream = () => {
     const determinePlaybackMethod = async (data: StreamData) => {
       try {
         // Check if stream is currently live
-        if (data.isActive && data.isLive && data.playbackId) {
+        if (data.isLive && data.playbackId) {
           console.log("Stream is live, using HLS playback");
           setPlaybackType('live');
           const playerSource = createHlsPlayerSrc(data.playbackId);
