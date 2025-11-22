@@ -4,6 +4,8 @@ import { Heart, Home, LayoutGrid, LogOut, Video, X } from "lucide-react";
 import SidebarItem from "../sidebar-item";
 import { useLocation } from "react-router";
 import { useEffect, useRef } from "react";
+import useDisclosure from "@/lib/hooks/use-disclosure";
+import CreateStream from "@/modules/stream/components/dialogs/create-stream";
 import { useAuth } from "@/lib/hooks/use-auth";
 
 type Props = {
@@ -13,6 +15,7 @@ type Props = {
 
 const MobileSidebar = ({ expanded, setExpanded }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, isLoggedIn, logout } = useAuth();
 
   const { pathname } = useLocation();
@@ -108,13 +111,15 @@ const MobileSidebar = ({ expanded, setExpanded }: Props) => {
 
       <Button
         className="rounded-[20px] w-full text-sm font-semibold py-5 pl-1"
-        // onClick={onOpen}
+        onClick={onOpen}
       >
         <div className="w-[31px] h-[31px] rounded-full text-white flex items-center justify-center bg-[#141414]">
           <Video />
         </div>
         Go Live
       </Button>
+
+      <CreateStream open={isOpen} onClose={onClose} />
 
       {isLoggedIn ? (
         <Button 

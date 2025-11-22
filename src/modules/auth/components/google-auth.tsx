@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { authApi } from "@/firebase/auth";
 import { useAuthStore } from "@/store";
-
+import { FcGoogle } from "react-icons/fc";
 const GoogleAuth = ({ text }: { text?: string }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -45,13 +45,7 @@ const GoogleAuth = ({ text }: { text?: string }) => {
       onClick={handleGoogleClick}
       disabled={loading}
     >
-      <img
-        width={24}
-        height={24}
-        src="/src/assets/images/gwid-google-auth.svg"
-        alt="Continue with google"
-        className="mr-1"
-      />{" "}
+     <FcGoogle className=""/>
       {loading ? "Processing..." : text ? text : "Continue with Google"}
     </Button>
   );

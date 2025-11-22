@@ -27,7 +27,7 @@ const Signup = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login, setError, error } = useAuthStore();
+  const { setError, error } = useAuthStore();
 
   const form = useForm<SignupSchemaType>({
     resolver: zodResolver(SignupSchema),
@@ -50,13 +50,13 @@ const Signup = () => {
         setError(res.error || "Signup failed");
       } else {
         // Convert response to User type and login
-        const user = {
-          email: data.email,
-          onboarded: false,
-          ...(res as any).user
-        };
-        login(user);
-        navigate("/");
+        // const user = {
+        //   email: data.email,
+        //   onboarded: false,
+        //   ...(res as any).user
+        // };
+        // login(user);
+        navigate("/auth/login");
       }
     } catch (err: any) {
       setError(err.message || "Signup failed");

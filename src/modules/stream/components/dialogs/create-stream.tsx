@@ -105,34 +105,34 @@ const CreateStream = ({ open, onClose }: Props) => {
       <DialogTitle hidden>Create Stream</DialogTitle>
       <DialogContent
         showCloseButton={false}
-        className="bg-[#302F2F] border-0 min-w-5xl text-white py-6 pl-6 pr-14 rounded-[20px]"
+        className="bg-[#302F2F] border-0 w-[95vw] sm:w-auto sm:min-w-5xl text-white py-4 px-4 sm:py-6 sm:pl-6 sm:pr-14 rounded-[20px] max-h-[90vh] overflow-y-auto"
       >
         <Form {...form}>
           <form onSubmit={form.handleSubmit(submit)}>
-            <div className="flex flex-col space-y-6">
-              <p className="font-medium">
+            <div className="flex flex-col space-y-4 sm:space-y-6">
+              <p className="font-medium text-sm sm:text-base">
                 Stream Cover{" "}
                 <small className="text-[#FFFFFFB2]">(Optional)</small>
               </p>
 
-              <div className="flex items-center space-x-10">
-                <div className="w-[500px] h-[400px]">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-5 sm:space-y-0 sm:space-x-10">
+                <div className="w-full sm:w-[500px] h-[250px] sm:h-[400px]">
                   <SelectStreamThumbnail setFile={setFile} />
                 </div>
 
-                <div className="flex flex-col w-full space-y-5">
+                <div className="flex flex-col w-full space-y-4 sm:space-y-5">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="mb-1 text-base">
+                        <FormLabel className="mb-1 text-sm sm:text-base">
                           Stream Name
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Give your stream a name"
-                            className="h-12 rounded-[5px] bg-[#181717] border-0 placeholder:text-[#AAAAAA]"
+                            className="h-10 sm:h-12 rounded-[5px] bg-[#181717] border-0 placeholder:text-[#AAAAAA] text-sm sm:text-base"
                             {...field}
                           />
                         </FormControl>
@@ -146,7 +146,7 @@ const CreateStream = ({ open, onClose }: Props) => {
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="mb-1 text-base">
+                        <FormLabel className="mb-1 text-sm sm:text-base">
                           Category
                         </FormLabel>
                         <FormControl>
@@ -154,7 +154,7 @@ const CreateStream = ({ open, onClose }: Props) => {
                             value={field.value}
                             onValueChange={field.onChange}
                           >
-                            <SelectTrigger className="w-xs !h-12 rounded-[5px] bg-[#181717] border-0 !text-[#AAAAAA]">
+                            <SelectTrigger className="w-full sm:w-xs !h-10 sm:!h-12 rounded-[5px] bg-[#181717] border-0 !text-[#AAAAAA] text-sm sm:text-base">
                               <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                             <SelectContent className="text-white bg-[#000] border-[1.5px] border-[#383A3F] max-h-[300px]">
@@ -176,7 +176,7 @@ const CreateStream = ({ open, onClose }: Props) => {
                     name="schedule"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="mb-1 text-base">
+                        <FormLabel className="mb-1 text-sm sm:text-base">
                           Schedule
                         </FormLabel>
                         <FormControl>
@@ -184,7 +184,7 @@ const CreateStream = ({ open, onClose }: Props) => {
                             value={field.value}
                             onValueChange={field.onChange}
                           >
-                            <SelectTrigger className="w-xs !h-12 rounded-[5px] bg-[#181717] border-0 !text-[#AAAAAA]">
+                            <SelectTrigger className="w-full sm:w-xs !h-10 sm:!h-12 rounded-[5px] bg-[#181717] border-0 !text-[#AAAAAA] text-sm sm:text-base">
                               <SelectValue placeholder="Select a schedule" />
                             </SelectTrigger>
                             <SelectContent className="text-white bg-[#000] border-[1.5px] border-[#383A3F]">
@@ -198,19 +198,19 @@ const CreateStream = ({ open, onClose }: Props) => {
                   />
 
                   <div className="flex items-center space-x-3">
-                    <Checkbox id="record" />
-                    <FormLabel htmlFor="record" className="text-base">
+                    <Checkbox id="record" checked={true} disabled />
+                    <FormLabel htmlFor="record" className="text-sm sm:text-base">
                       Record this stream
                     </FormLabel>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end space-x-2 py-5">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 py-3 sm:py-5">
                 <Button
                   type="button"
                   variant="link"
-                  className="hover:no-underline text-white h-12"
+                  className="hover:no-underline text-white h-10 sm:h-12 text-sm sm:text-base"
                   onClick={onClose}
                   disabled={isLoading}
                 >
@@ -218,7 +218,7 @@ const CreateStream = ({ open, onClose }: Props) => {
                 </Button>
                 <Button 
                   type="submit" 
-                  className="h-12"
+                  className="h-10 sm:h-12 text-sm sm:text-base w-full sm:w-auto"
                   disabled={isLoading}
                 >
                   {isLoading ? "Creating Stream..." : "Create Stream"}
