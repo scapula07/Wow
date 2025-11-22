@@ -114,7 +114,7 @@ const Carousel = () => {
             )}
             onClick={() => {
               if (!isSkeletonCard && stream.id) {
-                navigate(`/streams/${stream.id}/live`);
+                navigate(`/streams/${stream.id}`);
               }
             }}
           >
