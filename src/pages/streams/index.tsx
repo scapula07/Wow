@@ -234,7 +234,7 @@ const VodStream = () => {
       <div className="flex flex-col lg:flex-row lg:space-x-6 px-0 sm:px-4 py-0 sm:py-5 space-y-0 lg:space-y-0">
         <div className="flex flex-col space-y-0 sm:space-y-4 w-full lg:w-2/3">
           <div className="flex flex-col space-y-0 sm:space-y-1">
-            <div className="w-full h-[250px] sm:h-[400px] md:h-[500px] lg:h-[600px] rounded-none sm:rounded-[10px] overflow-hidden relative">
+            <div className="w-full h-[250px] sm:h-[400px] md:h-[500px] lg:h-[470px] rounded-none sm:rounded-[10px] overflow-hidden relative">
               {/* Live/Recorded indicator */}
               <div className="absolute top-4 left-4 z-10">
                 {playbackType === 'live' ? (
@@ -275,7 +275,7 @@ const VodStream = () => {
             {playbackType === 'recorded' && allSessions.length > 1 && (
               <div className="mt-3 sm:mt-4 px-2 sm:px-0">
                 <h3 className="text-white font-semibold mb-2 sm:mb-3 text-xs sm:text-sm">
-                  Previous Recordings ({allSessions.length})
+                 Last Sessions({allSessions.length})
                 </h3>
                 <div className="space-y-2 max-h-[180px] sm:max-h-[200px] overflow-y-auto">
                   {allSessions.map((session, index) => (
@@ -327,7 +327,7 @@ const VodStream = () => {
         </div>
 
         <div className="w-full lg:w-1/3 px-2 sm:px-0 mt-6 lg:mt-0">
-          <StreamChat streamId={streamData.id} />
+          <StreamChat streamId={streamData.id} isLive={streamData.isLive} />
         </div>
       </div>
       <Toaster />

@@ -35,9 +35,10 @@ interface Message {
 
 interface StreamChatProps {
   streamId?: string;
+  isLive?: boolean;
 }
 
-const StreamChat = ({ streamId }: StreamChatProps) => {
+const StreamChat = ({ streamId, isLive = false }: StreamChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
@@ -163,7 +164,7 @@ const StreamChat = ({ streamId }: StreamChatProps) => {
   if (!streamId) {
     return (
       <div className="flex flex-col rounded-lg h-full overflow-hidden">
-        <div className="pt-3 px-3 font-semibold text-white">Live Chat</div>
+        <div className="pt-3 px-3 font-semibold text-white">{isLive ? 'Live Chat' : 'Comments'}</div>
         <div className="flex-1 flex items-center justify-center">
           <p className="text-gray-400">Chat not available</p>
         </div>
@@ -173,7 +174,7 @@ const StreamChat = ({ streamId }: StreamChatProps) => {
 
   return (
     <div className="flex flex-col rounded-lg h-full overflow-hidden">
-      <div className="pt-3 px-3 font-semibold text-white">Live Chat</div>
+      <div className="pt-3 px-3 font-semibold text-white">{isLive ? 'Live Chat' : 'Comments'}</div>
 
       <div
         className="relative flex-1 h-full max-h-[70vh] overflow-y-auto no-scrollbar px-3 space-y-4"
