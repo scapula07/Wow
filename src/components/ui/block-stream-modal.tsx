@@ -37,7 +37,8 @@ export const BlockStreamModal = ({
 }: BlockStreamModalProps) => {
   const [selectedReason, setSelectedReason] = useState<string>("");
 
-  const handleConfirm = () => {
+  const handleConfirm = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (selectedReason) {
       onConfirm(selectedReason);
     }
@@ -48,8 +49,14 @@ export const BlockStreamModal = ({
     onClose();
   };
 
+  const handleDialogChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      handleClose();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent className="sm:max-w-[500px] bg-[#1a1a1a] text-white border-gray-800">
         <DialogHeader>
           <DialogTitle className="text-xl">Block Stream</DialogTitle>

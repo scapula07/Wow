@@ -328,23 +328,27 @@ const LivestreamCard = ({ video, stream }: Props) => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <DeleteModal
-        open={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleConfirmDelete}
-        title="Delete Stream"
-        itemName={stream?.streamName}
-        isDeleting={deleting}
-      />
+      <div onClick={(e) => e.stopPropagation()}>
+        <DeleteModal
+          open={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleConfirmDelete}
+          title="Delete Stream"
+          itemName={stream?.streamName}
+          isDeleting={deleting}
+        />
+      </div>
 
       {/* Block Stream Modal */}
-      <BlockStreamModal
-        open={showBlockModal}
-        onClose={() => setShowBlockModal(false)}
-        onConfirm={handleConfirmBlock}
-        streamName={stream?.streamName}
-        isBlocking={blocking}
-      />
+      <div onClick={(e) => e.stopPropagation()}>
+        <BlockStreamModal
+          open={showBlockModal}
+          onClose={() => setShowBlockModal(false)}
+          onConfirm={handleConfirmBlock}
+          streamName={stream?.streamName}
+          isBlocking={blocking}
+        />
+      </div>
     </div>
   );
 };
