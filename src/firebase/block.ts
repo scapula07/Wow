@@ -21,7 +21,7 @@ interface BlockStreamParams {
 interface BlockedStream {
   streamId: string;
   reason: string;
-  blockedAt: any;
+  blockedAt: number; // Unix timestamp in milliseconds
 }
 
 /**
@@ -33,10 +33,11 @@ export const blockStream = async ({ streamId, userId, reason }: BlockStreamParam
     const userBlocksRef = doc(db, "userBlocks", userId);
     const userBlocksDoc = await getDoc(userBlocksRef);
 
+    // Use Date.now() instead of serverTimestamp() for arrays
     const blockData: BlockedStream = {
       streamId,
       reason,
-      blockedAt: serverTimestamp(),
+      blockedAt: Date.now(),
     };
 
     if (userBlocksDoc.exists()) {
