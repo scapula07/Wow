@@ -232,7 +232,7 @@ const VodStream = () => {
   return (
     <>
       <div className="flex flex-col lg:flex-row lg:space-x-6 px-0 sm:px-4 py-0 sm:py-5 space-y-0 lg:space-y-0">
-        <div className="flex flex-col space-y-0 sm:space-y-12 w-full lg:w-2/3">
+        <div className="flex flex-col space-y-0 sm:space-y-4 w-full lg:w-2/3">
           <div className="flex flex-col space-y-0 sm:space-y-1">
             <div className="w-full h-[250px] sm:h-[400px] md:h-[500px] lg:h-[600px] rounded-none sm:rounded-[10px] overflow-hidden relative">
               {/* Live/Recorded indicator */}
