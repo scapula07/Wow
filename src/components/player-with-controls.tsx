@@ -91,7 +91,15 @@ export function PlayerWithControls(props: { src: Src[] | null }) {
 
         <Player.Controls 
           autoHide={0}
-          style={{ opacity: 1, visibility: 'visible' }}
+          style={{ 
+            opacity: 1, 
+            visibility: 'visible',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 50
+          }}
           className="bg-gradient-to-b gap-1 px-3 md:px-3 py-2 flex-col-reverse flex from-black/5 via-80% via-black/30 to-black/60"
         >
           <div className="flex justify-between gap-4">
