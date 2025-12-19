@@ -15,8 +15,10 @@ import { formatRelativeTime } from "@/lib/utils/date";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { toast } from "sonner";
 import { DeleteModal } from "./ui/delete-modal";
+import { BlockStreamModal } from "./ui/block-stream-modal";
 import { livepeerClient } from "@/lib/livepeer";
 import { viewershipCache } from "@/lib/cache/viewership-cache";
+import { blockStream } from "@/firebase/block";
 
 interface UserData {
   id: string;
@@ -39,6 +41,8 @@ const LivestreamCard = ({ video, stream }: Props) => {
   const [loadingCreator, setLoadingCreator] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const [viewership, setViewership] = useState<number | null>(null);
   const [loadingViewership, setLoadingViewership] = useState(false);
 
@@ -135,6 +139,41 @@ const LivestreamCard = ({ video, stream }: Props) => {
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click from triggering
     setShowDeleteModal(true);
+  };
+
+  const handleBlockClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click from triggering
+    setShowBlockModal(true);
+  };
+
+  const handleConfirmBlock = async (reason: string) => {
+    if (!stream?.id || !user?.id) return;
+
+    setBlocking(true);
+    try {
+      const result = await blockStream({
+        streamId: stream.id,
+        userId: user.id,
+        reason,
+      });
+
+      if (result.success) {
+        toast.success("Stream blocked successfully");
+        setShowBlockModal(false);
+        
+        // Optionally refresh to remove from view
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        toast.error(result.error || "Failed to block stream");
+      }
+    } catch (error) {
+      console.error("Error blocking stream:", error);
+      toast.error("Failed to block stream");
+    } finally {
+      setBlocking(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -257,14 +296,14 @@ const LivestreamCard = ({ video, stream }: Props) => {
             className="w-fit bg-[#3A3A3A] text-[#D3D3D3] border-0 py-2"
             align="start"
           >
-            <DropdownMenuItem className="hover:!bg-gray-500 text-[11px] hover:!text-[#FAFAFA] cursor-pointer py-2 !flex !items-center">
+            {/* <DropdownMenuItem className="hover:!bg-gray-500 text-[11px] hover:!text-[#FAFAFA] cursor-pointer py-2 !flex !items-center">
               <img
                 src="/assets/icons/not-interested-icon.svg"
                 alt="uninterested"
                 className="w-4"
               />
               Not Interested
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             
             {/* Only show delete option if user owns stream AND we're on profile page */}
             {isOwner && isOnProfilePage ? (
@@ -276,7 +315,10 @@ const LivestreamCard = ({ video, stream }: Props) => {
                 Delete Stream
               </DropdownMenuItem>
             ) : !isOwner ? (
-              <DropdownMenuItem className="hover:!bg-gray-500 text-[11px] hover:!text-[#FAFAFA] cursor-pointer py-2 !flex !items-center">
+              <DropdownMenuItem 
+                className="hover:!bg-gray-500 text-[11px] hover:!text-[#FAFAFA] cursor-pointer py-2 !flex !items-center"
+                onClick={handleBlockClick}
+              >
                 <CircleX className="!text-[#FAFAFA]" />
                 Block Stream
               </DropdownMenuItem>
@@ -293,6 +335,15 @@ const LivestreamCard = ({ video, stream }: Props) => {
         title="Delete Stream"
         itemName={stream?.streamName}
         isDeleting={deleting}
+      />
+
+      {/* Block Stream Modal */}
+      <BlockStreamModal
+        open={showBlockModal}
+        onClose={() => setShowBlockModal(false)}
+        onConfirm={handleConfirmBlock}
+        streamName={stream?.streamName}
+        isBlocking={blocking}
       />
     </div>
   );

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
+  // DropdownMenuContent,
+  // DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
@@ -16,7 +16,7 @@ export function BrowseRecommendedDropdown() {
           <ChevronDown className="w-8 h-8" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-[#121212] text-white border border-[#2a2a2a]">
+      {/* <DropdownMenuContent className="w-56 bg-[#121212] text-white border border-[#2a2a2a]">
         <DropdownMenuItem className="hover:bg-[#1a1a1a] cursor-pointer">
           Trending
         </DropdownMenuItem>
@@ -26,7 +26,7 @@ export function BrowseRecommendedDropdown() {
         <DropdownMenuItem className="hover:bg-[#1a1a1a] cursor-pointer">
           Most Popular
         </DropdownMenuItem>
-      </DropdownMenuContent>
+      </DropdownMenuContent> */}
     </DropdownMenu>
   );
 }

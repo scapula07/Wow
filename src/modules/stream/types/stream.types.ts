@@ -12,6 +12,10 @@ export interface StreamData {
   createdAt: string;
   isLive: boolean;
   viewerCount: number;
+  censorshipCount?: number;
+  isCensored?: boolean;
+  lastCensorshipAt?: any;
+  censoredAt?: any;
 }
 
 export interface StreamDetails {

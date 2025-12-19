@@ -1,7 +1,7 @@
 // import { Eye } from "lucide-react";
 import type { CategoryData } from "@/lib/constants/livestream-categories";
 import { PiRecordFill } from "react-icons/pi";
-import { ChevronRight } from "lucide-react";
+// import { ChevronRight } from "lucide-react";
 
 type Props = {
   category?: CategoryData;
@@ -53,11 +53,11 @@ const LivestreamCategoryCard = ({ category, views, onClick }: Props) => {
       )}
 
       {/* Show subcategory indicator */}
-      {category?.subcategories && category.subcategories.length > 0 && (
+      {/* {category?.subcategories && category.subcategories.length > 0 && (
         <div className="absolute top-4 right-4 z-10 bg-primary/80 rounded-full p-1.5">
           <ChevronRight className="w-4 h-4 text-white" />
         </div>
-      )}
+      )} */}
       
       <div className="z-10 relative">
         <p className="font-semibold text-white">{categoryName}</p>

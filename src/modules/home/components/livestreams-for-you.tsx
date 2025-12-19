@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { collection, query, limit, startAfter, getDocs, QueryDocumentSnapshot, type DocumentData } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import type { StreamData } from "@/modules/stream/types/stream.types";
+import { useFilteredStreams } from "@/lib/hooks/use-filtered-streams";
 
 const STREAMS_PER_PAGE = 8;
 
@@ -15,6 +16,9 @@ const LivestreamsForYou = () => {
   const [hasMore, setHasMore] = useState(true);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  // Filter out blocked and censored streams
+  const { filteredStreams, loading: filterLoading } = useFilteredStreams(streams);
   
   // Refs to track current values to avoid stale closures
   const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null);
@@ -222,7 +226,7 @@ const LivestreamsForYou = () => {
       </div>
 
       <div className="grid md:grid-cols-4 grid-cols-1 gap-x-5 gap-y-8">
-        {streams.map((stream) => (
+        {filteredStreams.map((stream) => (
           <LivestreamCard
             key={stream.id}
             stream={stream}
@@ -238,14 +242,14 @@ const LivestreamsForYou = () => {
       )}
 
       {/* No more streams indicator */}
-      {!hasMore && streams.length > 0 && (
+      {!hasMore && filteredStreams.length > 0 && (
         <div className="flex items-center justify-center py-8">
           <div className="text-gray-400 text-sm">No more streams to load</div>
         </div>
       )}
 
       {/* No streams found */}
-      {streams.length === 0 && !loading && (
+      {filteredStreams.length === 0 && !loading && !filterLoading && (
         <div className="flex items-center justify-center py-20">
           <div className="text-gray-400 text-lg">No streams found</div>
         </div>
