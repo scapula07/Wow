@@ -158,7 +158,7 @@ const StreamUserDetails = ({ streamData }: StreamUserDetailsProps) => {
           </div>
         </div>
 
-        <div className="flex flex-col space-y-3">
+        {/* <div className="flex flex-col space-y-3">
           <a href="#" target="_blank" className="flex items-center space-x-3">
             <img
               src="/assets/icons/wow-youtube.svg"
@@ -183,7 +183,7 @@ const StreamUserDetails = ({ streamData }: StreamUserDetailsProps) => {
             />
             <p className="text-[#FFFFFFB2] font-medium">Tiktok</p>
           </a>
-        </div>
+        </div> */}
       </div>
     </div>
   );

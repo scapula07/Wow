@@ -28,6 +28,7 @@ const LiveStream = lazy(() => import("./pages/streams/live"));
 const VodStream = lazy(() => import("./pages/streams/index"));
 const BrowseStreams = lazy(() => import("./pages/browse"));
 const Following = lazy(() => import("./pages/following"));
+const SearchPage = lazy(() => import("./pages/search"));
 
 // User
 const UserProfile = lazy(() => import("./pages/user/profile"));
@@ -89,6 +90,13 @@ const routes: RouteConfig[] = [
   {
     path: "/browse",
     page: BrowseStreams,
+    layout: DashboardLayout,
+  },
+
+  // Search
+  {
+    path: "/search",
+    page: SearchPage,
     layout: DashboardLayout,
   },
 
