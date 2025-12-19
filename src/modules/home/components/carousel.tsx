@@ -47,23 +47,65 @@ const Carousel = () => {
           // No live streams, fetch most recent streams
           console.log("📺 No live streams, fetching most recent...");
           try {
+            // Try to fetch with createdAt ordering
             const recentQuery = query(
               collection(db, "streams"),
               orderBy("createdAt", "desc"),
               limit(3)
             );
             const recentSnapshot = await getDocs(recentQuery);
-            const recentStreams = recentSnapshot.docs.map(doc => ({
+            let recentStreams = recentSnapshot.docs.map(doc => ({
               id: doc.id,
               ...doc.data()
             })) as StreamData[];
 
             console.log("📺 Most recent streams for carousel:", recentStreams);
+            console.log("📺 Recent streams count:", recentStreams.length);
+            console.log("📺 Recent streams details:", recentStreams.map(s => ({
+              id: s.id,
+              name: s.streamName,
+              createdAt: s.createdAt,
+              isLive: s.isLive
+            })));
+
+            // If we got less than expected, try without orderBy as fallback
+            if (recentStreams.length < 2) {
+              console.log("📺 Less than 2 streams with createdAt, trying without orderBy...");
+              const fallbackQuery = query(
+                collection(db, "streams"),
+                limit(3)
+              );
+              const fallbackSnapshot = await getDocs(fallbackQuery);
+              recentStreams = fallbackSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+              })) as StreamData[];
+              console.log("📺 Fallback streams count:", recentStreams.length);
+              console.log("📺 Fallback streams:", recentStreams.map(s => ({
+                id: s.id,
+                name: s.streamName,
+                hasCreatedAt: !!s.createdAt
+              })));
+            }
+
             setStreams(recentStreams);
             setLoading(false);
           } catch (error) {
             console.error("Error fetching recent streams:", error);
-            setStreams([]);
+            // Last resort: fetch without any ordering
+            try {
+              const basicQuery = query(collection(db, "streams"), limit(3));
+              const basicSnapshot = await getDocs(basicQuery);
+              const basicStreams = basicSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+              })) as StreamData[];
+              console.log("📺 Basic query streams:", basicStreams.length);
+              setStreams(basicStreams);
+            } catch (finalError) {
+              console.error("Final fallback failed:", finalError);
+              setStreams([]);
+            }
             setLoading(false);
           }
         }
