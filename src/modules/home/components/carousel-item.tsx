@@ -132,11 +132,13 @@ const CarouselItem = ({ img, stream }: Props) => {
       }}
     >
 
+      {stream?.isLive && (
         <div className="absolute top-4 left-4 ">
           <h2 className="text-white font-semibold text-sm bg-red-600 px-2 py-1 rounded-md">
             Live
           </h2>
         </div>
+      )}
   
 
       <div className="w-full flex items-center justify-between bg-[#070707B2] p-4">

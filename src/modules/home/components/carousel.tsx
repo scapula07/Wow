@@ -33,9 +33,12 @@ const Carousel = () => {
 
         if (liveStreams.length > 0) {
           // Sort by viewerCount on client side and take top 3
-          const sortedStreams = liveStreams
-            .sort((a, b) => (b.viewerCount || 0) - (a.viewerCount || 0))
-            .slice(0, 3);
+          // const sortedStreams = liveStreams
+          //   .sort((a, b) => (b.viewerCount || 0) - (a.viewerCount || 0))
+          //   .slice(0, 3);
+          
+          // For now, just take the first 3 without sorting
+          const sortedStreams = liveStreams.slice(0, 3);
 
           console.log("📺 Live streams for carousel:", sortedStreams);
           setStreams(sortedStreams);
