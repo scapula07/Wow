@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSwipeable } from "react-swipeable";
 import CarouselItem from "./carousel-item";
-import { collection, query, where, limit, onSnapshot } from "firebase/firestore";
+import { collection, query, where, limit, onSnapshot, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import type { StreamData } from "@/modules/stream/types/stream.types";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ const Carousel = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch top 3 live streams by viewership
+  // Fetch live streams first, fallback to most recent if no live streams
   useEffect(() => {
     const q = query(
       collection(db, "streams"),
@@ -25,20 +25,45 @@ const Carousel = () => {
 
     const unsubscribe = onSnapshot(
       q,
-      (snapshot) => {
+      async (snapshot) => {
         const liveStreams = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as StreamData[];
 
-        // Sort by viewerCount on client side and take top 3
-        const sortedStreams = liveStreams
-          .sort((a, b) => (b.viewerCount || 0) - (a.viewerCount || 0))
-          .slice(0, 3);
+        if (liveStreams.length > 0) {
+          // Sort by viewerCount on client side and take top 3
+          const sortedStreams = liveStreams
+            .sort((a, b) => (b.viewerCount || 0) - (a.viewerCount || 0))
+            .slice(0, 3);
 
-        console.log("📺 Live streams for carousel:", sortedStreams);
-        setStreams(sortedStreams);
-        setLoading(false);
+          console.log("📺 Live streams for carousel:", sortedStreams);
+          setStreams(sortedStreams);
+          setLoading(false);
+        } else {
+          // No live streams, fetch most recent streams
+          console.log("📺 No live streams, fetching most recent...");
+          try {
+            const recentQuery = query(
+              collection(db, "streams"),
+              orderBy("createdAt", "desc"),
+              limit(3)
+            );
+            const recentSnapshot = await getDocs(recentQuery);
+            const recentStreams = recentSnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            })) as StreamData[];
+
+            console.log("📺 Most recent streams for carousel:", recentStreams);
+            setStreams(recentStreams);
+            setLoading(false);
+          } catch (error) {
+            console.error("Error fetching recent streams:", error);
+            setStreams([]);
+            setLoading(false);
+          }
+        }
       },
       (error) => {
         console.error("Error fetching live streams:", error);
