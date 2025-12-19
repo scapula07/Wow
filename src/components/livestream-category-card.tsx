@@ -1,15 +1,15 @@
 // import { Eye } from "lucide-react";
 import type { CategoryData } from "@/lib/constants/livestream-categories";
-import { useNavigate } from "react-router-dom";
 import { PiRecordFill } from "react-icons/pi";
+import { ChevronRight } from "lucide-react";
+
 type Props = {
   category?: CategoryData;
   views?: number;
+  onClick?: () => void;
 };
 
-const LivestreamCategoryCard = ({ category, views }: Props) => {
-  const navigate = useNavigate();
-
+const LivestreamCategoryCard = ({ category, views, onClick }: Props) => {
   // Format stream count
   const formatStreamCount = (count: number) => {
     if (count >= 1000000) {
@@ -25,8 +25,8 @@ const LivestreamCategoryCard = ({ category, views }: Props) => {
   const backgroundImage = category?.image || "assets/images/wow-live-sample.jpg";
 
   const handleClick = () => {
-    if (category?.id) {
-      navigate(`/browse?category=${category.id}`);
+    if (onClick) {
+      onClick();
     }
   };
 
@@ -49,6 +49,13 @@ const LivestreamCategoryCard = ({ category, views }: Props) => {
         <div className="flex bg-[#575757E5] rounded-r-[6.04px] py-2 px-3 items-center space-x-2 absolute top-4 left-0 z-10">
           <PiRecordFill className="text-red-500 w-4 h-4" />
           <span className="font-medium text-sm">{formatStreamCount(displayStreams)} streams</span>
+        </div>
+      )}
+
+      {/* Show subcategory indicator */}
+      {category?.subcategories && category.subcategories.length > 0 && (
+        <div className="absolute top-4 right-4 z-10 bg-primary/80 rounded-full p-1.5">
+          <ChevronRight className="w-4 h-4 text-white" />
         </div>
       )}
       

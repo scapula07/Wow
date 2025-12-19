@@ -1,9 +1,18 @@
+export interface SubCategoryData {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  streamCount?: number;
+}
+
 export interface CategoryData {
   id: string;
   name: string;
   description: string;
   image: string;
   streamCount?: number;
+  subcategories?: SubCategoryData[];
 }
 
 export const LIVESTREAM_CATEGORIES: CategoryData[] = [
@@ -16,10 +25,47 @@ export const LIVESTREAM_CATEGORIES: CategoryData[] = [
   },
   {
     id: "common-alien-archetypes",
-    name: "Common Alien Archetypes, Grey, Reptilian, Nordic, Mantid, and Anunnaki",
+    name: "Common Alien Archetypes",
     description: "Comprehensive exploration of the most commonly reported alien species: Greys, Reptilians, Nordics, Mantids, and Anunnaki — examining their characteristics, encounters, and cultural significance.",
     image: "/assets/images/ufo2.jpg",
     streamCount: 0,
+    subcategories: [
+      {
+        id: "grey-aliens",
+        name: "Grey Aliens",
+        description: "Focused coverage on the 'Grey' archetype: reported encounters, appearance descriptions, and cultural influence across media.",
+        image: "/assets/images/ufo2.jpg",
+        streamCount: 0,
+      },
+      {
+        id: "reptilian-aliens",
+        name: "Reptilian Aliens",
+        description: "Explorations of reptilian-type entities in folklore and eyewitness reports, including origin theories and symbolic readings.",
+        image: "/assets/images/ufo3.jpg",
+        streamCount: 0,
+      },
+      {
+        id: "nordic-aliens",
+        name: "Nordic Aliens",
+        description: "Accounts and analyses of humanoid 'Nordic' entities often described as benevolent — myth, testimony, and hypotheses.",
+        image: "/assets/images/ufo4.jpg",
+        streamCount: 0,
+      },
+      {
+        id: "mantid-aliens",
+        name: "Mantid Aliens",
+        description: "Investigations into mantid/insectoid entities: encounter narratives, symbolic interpretations, and scientific speculation.",
+        image: "/assets/images/ufo5.jpg",
+        streamCount: 0,
+      },
+      {
+        id: "anunnaki",
+        name: "Anunnaki",
+        description: "Ancient astronaut theories, Sumerian texts, and modern interpretations of the Anunnaki as extraterrestrial visitors.",
+        image: "/assets/images/ufo6.jpg",
+        streamCount: 0,
+      }
+    ]
   },
   {
     id: "telepathic-communication",

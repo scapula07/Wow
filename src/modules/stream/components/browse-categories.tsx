@@ -1,10 +1,12 @@
 import { Input } from "@/components/ui/input";
 import { BrowseRecommendedDropdown } from "./browse-recommended-dropdown";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon, ArrowLeft } from "lucide-react";
 import LivestreamCategoryCard from "@/components/livestream-category-card";
-import { LIVESTREAM_CATEGORIES, type CategoryData } from "@/lib/constants/livestream-categories";
+import { LIVESTREAM_CATEGORIES, type CategoryData, type SubCategoryData } from "@/lib/constants/livestream-categories";
 import { useState, useEffect } from "react";
 import { categoryCountCache } from "@/lib/utils/category-counter";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   following?: boolean;
@@ -12,7 +14,9 @@ type Props = {
 
 const BrowseCategories = ({ following }: Props) => {
   const [categories, setCategories] = useState<CategoryData[]>(LIVESTREAM_CATEGORIES);
-  
+  const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
+  const [showSubcategories, setShowSubcategories] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategoryCounts = async () => {
@@ -38,6 +42,28 @@ const BrowseCategories = ({ following }: Props) => {
 
     fetchCategoryCounts();
   }, []);
+
+  const handleCategoryClick = (category: CategoryData) => {
+    if (category.subcategories && category.subcategories.length > 0) {
+      // Show subcategories
+      setSelectedCategory(category);
+      setShowSubcategories(true);
+    } else {
+      // Navigate to streams for this category
+      navigate(`/browse?category=${category.id}`);
+    }
+  };
+
+  const handleSubcategoryClick = (subcategory: SubCategoryData) => {
+    // Navigate to streams for this subcategory
+    navigate(`/browse?category=${subcategory.id}`);
+  };
+
+  const handleBackToCategories = () => {
+    setShowSubcategories(false);
+    setSelectedCategory(null);
+  };
+
   return (
     <div>
       {!following && (
@@ -53,13 +79,50 @@ const BrowseCategories = ({ following }: Props) => {
         </div>
       )}
 
-      <div className="grid md:grid-cols-4 grid-cols-1 gap-x-5 gap-y-8">
-        {categories.map((category) => (
-          <div className="h-[200px]" key={category.id}>
-            <LivestreamCategoryCard category={category} />
+      {showSubcategories && selectedCategory ? (
+        <div>
+          <Button
+            variant="ghost"
+            onClick={handleBackToCategories}
+            className="mb-6 text-white hover:text-primary flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Categories
+          </Button>
+          
+          <h2 className="text-2xl font-semibold mb-6 text-white">
+            {selectedCategory.name}
+          </h2>
+
+          <div className="grid md:grid-cols-4 grid-cols-1 gap-x-5 gap-y-8">
+            {selectedCategory.subcategories?.map((subcategory) => (
+              <div 
+                className="h-[200px]" 
+                key={subcategory.id}
+              >
+                <LivestreamCategoryCard 
+                  category={subcategory as any}
+                  onClick={() => handleSubcategoryClick(subcategory)}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-4 grid-cols-1 gap-x-5 gap-y-8">
+          {categories.map((category) => (
+            <div 
+              className="h-[200px]" 
+              key={category.id}
+            >
+              <LivestreamCategoryCard 
+                category={category}
+                onClick={() => handleCategoryClick(category)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
