@@ -110,6 +110,12 @@ const Carousel = () => {
     ...Array(Math.max(0, TOTAL_SLOTS - streams.length)).fill(null)
   ];
 
+  console.log("📊 Carousel display info:", {
+    streamsCount: streams.length,
+    displayItemsCount: displayItems.length,
+    streams: streams.map(s => ({ id: s?.id, name: s?.streamName, isLive: s?.isLive }))
+  });
+
   return (
     <div
       {...handlers}
