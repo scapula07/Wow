@@ -234,7 +234,7 @@ const VodStream = () => {
       <div className="flex flex-col lg:flex-row lg:space-x-6 px-0 sm:px-4 py-0 sm:py-5 space-y-0 lg:space-y-0">
         <div className="flex flex-col space-y-0 sm:space-y-12 w-full lg:w-2/3">
           <div className="flex flex-col space-y-0 sm:space-y-1">
-            <div className="w-full h-[250px] sm:h-[350px] md:h-[400px] rounded-none sm:rounded-[10px] overflow-hidden relative">
+            <div className="w-full h-[250px] sm:h-[400px] md:h-[500px] lg:h-[600px] rounded-none sm:rounded-[10px] overflow-hidden relative">
               {/* Live/Recorded indicator */}
               <div className="absolute top-4 left-4 z-10">
                 {playbackType === 'live' ? (
@@ -242,9 +242,7 @@ const VodStream = () => {
                     🔴 LIVE
                   </span>
                 ) : playbackType === 'recorded' ? (
-                  <span className="bg-blue-600 px-3 py-1 rounded text-white text-sm font-bold">
-                    📹 RECORDED
-                  </span>
+                   ""
                 ) : null}
               </div>
 
@@ -259,7 +257,7 @@ const VodStream = () => {
                 </div>
               )}
             </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 px-2 sm:px-2 py-2 sm:py-1 bg-[#232222] rounded-none sm:rounded-[5px] mt-0 sm:mt-1">
+            {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 px-2 sm:px-2 py-2 sm:py-1 bg-[#232222] rounded-none sm:rounded-[5px] mt-0 sm:mt-1">
               <div className="text-white text-xs sm:text-sm">
                 <span className="font-medium line-clamp-1">{streamData.streamName}</span>
                 {playbackType === 'recorded' && recordingSession && (
@@ -271,7 +269,7 @@ const VodStream = () => {
               <div className="text-gray-400 text-[10px] sm:text-xs truncate">
                 Stream ID: {streamData.id}
               </div>
-            </div>
+            </div> */}
 
             {/* Session Playlist - Only show for recorded content with multiple sessions */}
             {playbackType === 'recorded' && allSessions.length > 1 && (
