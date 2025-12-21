@@ -10,7 +10,8 @@ import {
 import { db } from "./config";
 
 // Threshold for auto-hiding streams from all users
-const CENSORSHIP_THRESHOLD = 10;
+// TODO: Change back to 10 for production
+const CENSORSHIP_THRESHOLD = 2;
 
 interface BlockStreamParams {
   streamId: string;
