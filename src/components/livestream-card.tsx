@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { CircleX, MoreVertical, Trash2 } from "lucide-react";
+import { Ban, CircleX, MoreVertical, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,9 +31,10 @@ interface UserData {
 type Props = {
   video?: boolean;
   stream?: StreamData;
+  showCensoredOverlay?: boolean;
 };
 
-const LivestreamCard = ({ video, stream }: Props) => {
+const LivestreamCard = ({ video, stream, showCensoredOverlay = false }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -218,8 +219,23 @@ const LivestreamCard = ({ video, stream }: Props) => {
         <img
           src={stream?.streamThumbnail || "/assets/images/wow-live-sample.jpg"}
           alt={stream?.streamName || "live stream"}
-          className="w-full h-full rounded-[10.35px] object-cover"
+          className={`w-full h-full rounded-[10.35px] object-cover ${
+            stream?.isCensored && showCensoredOverlay ? 'opacity-40 grayscale' : ''
+          }`}
         />
+
+        {/* Censored overlay */}
+        {stream?.isCensored && showCensoredOverlay && (
+          <div className="absolute inset-0 bg-orange-900/30 rounded-[10.35px] flex items-center justify-center">
+            <div className="bg-orange-600/90 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <p className="text-white font-bold text-sm flex items-center gap-2">
+                <Ban className="w-5 h-5" />
+                CENSORED BY COMMUNITY
+              </p>
+            </div>
+          </div>
+        )}
+
         {!video && (
           <span className="bg-[#141414B2] px-1.5 rounded-[2px] flex items-center font-semibold text-xs absolute bottom-5 right-3">
             <span className="text-[#FF0000] text-lg mr-1.5">●</span> 
@@ -231,7 +247,7 @@ const LivestreamCard = ({ video, stream }: Props) => {
         )}
         
         {/* Live indicator */}
-        {stream?.isLive && (
+        {stream?.isLive && !stream?.isCensored && (
           <span className="bg-red-600 px-2 py-1 rounded text-xs font-bold absolute top-3 left-3">
             LIVE
           </span>

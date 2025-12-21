@@ -60,7 +60,7 @@ export const CensorshipNotice = ({ censoredStreams }: CensorshipNoticeProps) => 
                   {topReasons.map((reason, index) => (
                     <span
                       key={index}
-                      className="bg-red-800/60 text-red-100 text-xs px-3 py-1 rounded-full border border-red-500/40"
+                      className="bg-red-800/60 text-red-100 text-[10px] px-3 py-1 rounded-full border border-red-500/40 font-normal"
                     >
                       {formatBlockReason(reason)}
                     </span>

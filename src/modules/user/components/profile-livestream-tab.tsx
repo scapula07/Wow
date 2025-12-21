@@ -70,7 +70,7 @@ const ProfileLivestreamTab = () => {
   return (
     <div className="grid md:grid-cols-4 grid-cols-1 gap-x-5 gap-y-8 mb-6">
       {streams.map((stream) => (
-        <LivestreamCard key={stream.id} stream={stream} />
+        <LivestreamCard key={stream.id} stream={stream} showCensoredOverlay={true} />
       ))}
     </div>
   );
