@@ -7,6 +7,8 @@ import { db } from "@/firebase/config";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { getUserCensoredStreams, getStreamBlockReasons, type CensoredStreamInfo } from "@/firebase/censorship";
+import { CensorshipNotice } from "@/components/censorship-notice";
 
 import ProfileLivestreamTab from "@/modules/user/components/profile-livestream-tab";
 
@@ -35,6 +37,8 @@ const Profile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
+  const [censoredStreams, setCensoredStreams] = useState<CensoredStreamInfo[]>([]);
+  const [loadingCensorship, setLoadingCensorship] = useState(true);
 
   const { id } = useParams<{ id: string }>();
   const { user: currentUser } = useAuth();
@@ -103,6 +107,37 @@ const Profile = () => {
     });
 
     return () => unsubscribe();
+  }, [id]);
+
+  // Fetch censored streams for this user
+  useEffect(() => {
+    const fetchCensoredStreams = async () => {
+      if (!id) {
+        setLoadingCensorship(false);
+        return;
+      }
+
+      setLoadingCensorship(true);
+      try {
+        const censored = await getUserCensoredStreams(id);
+        
+        // Fetch reasons for each censored stream
+        const streamsWithReasons = await Promise.all(
+          censored.map(async (stream) => {
+            const reasons = await getStreamBlockReasons(stream.streamId);
+            return { ...stream, reasons };
+          })
+        );
+
+        setCensoredStreams(streamsWithReasons);
+      } catch (error) {
+        console.error("Error fetching censored streams:", error);
+      } finally {
+        setLoadingCensorship(false);
+      }
+    };
+
+    fetchCensoredStreams();
   }, [id]);
 
   // Get display name with fallback logic
@@ -282,6 +317,11 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      {/* Censorship Notice */}
+      {!loadingCensorship && censoredStreams.length > 0 && (
+        <CensorshipNotice censoredStreams={censoredStreams} />
+      )}
 
       <Tabs className="w-full" defaultValue="livestreams">
         <TabsList className="w-full sm:w-fit bg-inherit items-center text-white h-fit mb-5">
