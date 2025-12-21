@@ -226,6 +226,11 @@ const Profile = () => {
 
   return (
     <div id={id} className="mt-6 sm:mt-12 flex flex-col space-y-6 sm:space-y-10 px-2 sm:px-4 md:px-0">
+      {/* Censorship Notice - Fixed at top */}
+      {!loadingCensorship && censoredStreams.length > 0 && (
+        <CensorshipNotice censoredStreams={censoredStreams} />
+      )}
+
       {/* Cover Image Section */}
       {user.coverImageURL && (
         <div className="w-full h-32 sm:h-48 rounded-lg overflow-hidden relative">
@@ -317,11 +322,6 @@ const Profile = () => {
           )}
         </div>
       </div>
-
-      {/* Censorship Notice */}
-      {!loadingCensorship && censoredStreams.length > 0 && (
-        <CensorshipNotice censoredStreams={censoredStreams} />
-      )}
 
       <Tabs className="w-full" defaultValue="livestreams">
         <TabsList className="w-full sm:w-fit bg-inherit items-center text-white h-fit mb-5">
